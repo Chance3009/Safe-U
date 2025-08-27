@@ -16,7 +16,7 @@ export default function ModalScreen() {
     </View>
   );
 }
-
+// added a commit
 const styles = StyleSheet.create({
   container: {
     flex: 1,
