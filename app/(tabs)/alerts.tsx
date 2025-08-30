@@ -267,8 +267,20 @@ export default function AlertsScreen() {
                                     size={24}
                                     color={getCategoryColor(alert.category)}
                                 />
-                                <Text style={[styles.alertTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
-                                    {alert.title}
+                                <Text
+                                  style={[
+                                    styles.alertTitle,
+                                    {
+                                      color:
+                                        selectedAlert === alert.id
+                                          ? '#000' // Always black when selected
+                                          : isDark
+                                          ? '#fff'
+                                          : '#000',
+                                    },
+                                  ]}
+                                >
+                                  {alert.title}
                                 </Text>
                             </View>
                             <View style={[styles.severityBadge, { backgroundColor: getCategoryColor(alert.category) }]}>
@@ -388,7 +400,7 @@ const styles = StyleSheet.create({
         lineHeight: 22,
     },
     mapContainer: {
-        height: height * 0.4,
+        height: height * 0.25,
         marginHorizontal: 16,
         marginBottom: 16,
         borderRadius: 16,
