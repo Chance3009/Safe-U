@@ -13,7 +13,9 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+// import MapView, { Marker, Polyline } from 'react-native-maps';
+import 'leaflet/dist/leaflet.css';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 
 interface EmergencyContact {
   id: string;
@@ -226,7 +228,7 @@ export default function SOSScreen() {
       {/* Map View when SOS is active */}
       {isEmergencyActive && (
         <View style={styles.mapContainer}>
-          <MapView
+          {/* <MapView
             style={styles.map}
             initialRegion={{
               latitude: userLocation.latitude,
@@ -235,7 +237,6 @@ export default function SOSScreen() {
               longitudeDelta: 0.01,
             }}
           >
-            {/* User location marker */}
             <Marker
               coordinate={userLocation}
               title="Your Location"
@@ -243,7 +244,6 @@ export default function SOSScreen() {
               pinColor="#FF0000"
             />
 
-            {/* Location history breadcrumbs */}
             {locationHistory.length > 1 && (
               <Polyline
                 coordinates={locationHistory}
@@ -252,7 +252,25 @@ export default function SOSScreen() {
                 lineDashPattern={[5, 5]}
               />
             )}
-          </MapView>
+          </MapView> */}
+          <MapContainer
+            center={[userLocation.latitude, userLocation.longitude]}
+            zoom={13}
+            style={styles.map}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[userLocation.latitude, userLocation.longitude]} />
+            {locationHistory.length > 1 && (
+              <Polyline
+                positions={locationHistory.map(loc => [loc.latitude, loc.longitude])}
+                color="#FF0000"
+                dashArray="5,5"
+              />
+            )}
+          </MapContainer>
         </View>
       )}
 
