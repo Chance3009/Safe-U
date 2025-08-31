@@ -191,12 +191,15 @@ export default function SOSScreen() {
         </View>
       )}
 
-      {/* Main SOS Button */}
-      <View style={styles.sosContainer}>
+      {/* Main SOS Button - Changed to rectangular when active */}
+      <View style={[
+        styles.sosContainer,
+        isEmergencyActive && styles.sosContainerActive
+      ]}>
         <TouchableOpacity
           style={[
             styles.sosButton,
-            isEmergencyActive && styles.sosButtonActive,
+            isEmergencyActive ? styles.endSosButton : null,
             { backgroundColor: isEmergencyActive ? '#FF4444' : '#FF0000' }
           ]}
           onPress={isEmergencyActive ? handleEndEmergency : handleEmergencySOS}
@@ -204,7 +207,7 @@ export default function SOSScreen() {
         >
           <Ionicons
             name={isEmergencyActive ? "checkmark-circle" : "warning"}
-            size={80}
+            size={isEmergencyActive ? 40 : 60}
             color="white"
           />
           <Text style={styles.sosButtonText}>
@@ -223,7 +226,7 @@ export default function SOSScreen() {
         )}
       </View>
 
-      {/* Map View when SOS is active */}
+      {/* Map View when SOS is active - Adjusted position */}
       {isEmergencyActive && (
         <View style={styles.mapContainer}>
           <MapView
@@ -333,7 +336,11 @@ export default function SOSScreen() {
             )}
 
             {selectedTab === 'people' && (
-              <View style={styles.peopleTab}>
+              <ScrollView 
+                style={styles.peopleTab}
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={styles.peopleTabContent}
+              >
                 {emergencyContacts.map((contact) => (
                   <View key={contact.id} style={styles.contactItem}>
                     <View style={styles.contactInfo}>
@@ -358,7 +365,7 @@ export default function SOSScreen() {
                     </View>
                   </View>
                 ))}
-              </View>
+              </ScrollView>
             )}
 
             {selectedTab === 'actions' && (
@@ -464,6 +471,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     gap: 24,
   },
+  sosContainerActive: {
+    flex: 0, // Don't take up extra space when active
+    paddingTop: 30, // Add space below app bar
+    paddingBottom: 10,
+  },
   sosButton: {
     width: 280,
     height: 280,
@@ -479,6 +491,12 @@ const styles = StyleSheet.create({
   },
   sosButtonActive: {
     backgroundColor: '#FF4444',
+  },
+  endSosButton: {
+    width: '100%',
+    height: 120,
+    borderRadius: 20, // Rounded rectangle corners
+    maxWidth: 300,
   },
   sosButtonText: {
     color: 'white',
@@ -548,7 +566,7 @@ const styles = StyleSheet.create({
     height: 200,
     marginHorizontal: 20,
     marginBottom: 20,
-    marginTop: 120,
+    marginTop: 20, // Adjusted from 120 to work with rectangular button
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -587,6 +605,7 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     minHeight: 200,
+    maxHeight: 300, // Set a max height to ensure scrolling works
   },
   statusTab: {
     gap: 16,
@@ -612,6 +631,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   peopleTab: {
+    flex: 1,
+  },
+  peopleTabContent: {
+    paddingBottom: 20, // Add padding at the bottom for better scrolling
     gap: 16,
   },
   contactItem: {
