@@ -281,7 +281,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: isDark ? "#ffffff" : "#000000" },
                   ]}
                 >
                   Location Sharing
@@ -311,7 +311,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: isDark ? "#ffffff" : "#000000" },
                   ]}
                 >
                   Data Consent
@@ -342,7 +342,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#0000000" : "#ffffff" },
+                    { color: isDark ? "#ffffff" : "#000000" },
                   ]}
                 >
                   Push Notifications
@@ -372,7 +372,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: isDark ? "#ffffff" : "#000000" },
                   ]}
                 >
                   Dark Mode
