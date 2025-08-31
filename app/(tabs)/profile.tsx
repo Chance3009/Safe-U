@@ -16,7 +16,7 @@ export default function ProfileScreen() {
   const [locationSharing, setLocationSharing] = useState(true);
   const [dataConsent, setDataConsent] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [userName, setUserName] = useState("Alex Johnson");
   const [userEmail, setUserEmail] = useState("alex.johnson@university.edu");
