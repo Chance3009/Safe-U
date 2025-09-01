@@ -414,6 +414,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
 });
 
 export default styles;

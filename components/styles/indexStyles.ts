@@ -28,6 +28,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     gap: 24,
   },
+  sosContainerActive: {
+    flex: 0, // Don't take up extra space when active
+    paddingTop: 30, // Add space below app bar
+    paddingBottom: 10,
+  },
   sosButton: {
     width: 280,
     height: 280,
@@ -43,6 +48,12 @@ const styles = StyleSheet.create({
   },
   sosButtonActive: {
     backgroundColor: '#FF4444',
+  },
+  endSosButton: {
+    width: '100%',
+    height: 120,
+    borderRadius: 20, // Rounded rectangle corners
+    maxWidth: 300,
   },
   sosButtonText: {
     color: 'white',
@@ -176,6 +187,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   peopleTab: {
+    gap: 16,
+  },
+  peopleTabContent: {
+    paddingBottom: 20, // Add padding at the bottom for better scrolling
     gap: 16,
   },
   contactItem: {
