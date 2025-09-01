@@ -9,7 +9,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polygon, Callout } from 'react-native-maps';
 
-import styles from '../../components/styles/alertStyles';
+import styles from '../../../components/styles/alertStyles';
+import alertsData from './alertsData.json';
 
 interface AdminAlert {
     id: string;
@@ -38,58 +39,10 @@ export default function AlertsScreen() {
     });
     const isDark = useColorScheme() === 'dark';
 
-    const [adminAlerts] = useState<AdminAlert[]>([
-        {
-            id: '1',
-            title: 'Exit Blocked',
-            description: 'Construction ongoing at Science Building exit. Use alternative route via Engineering Building.',
-            category: 'facility',
-            severity: 'high',
-            timestamp: '26/8/2025 4:50pm',
-            location: 'Science Building, USM',
-            coordinates: { latitude: 5.4164, longitude: 100.3327 },
-            radius: 100,
-            verifiedBy: 'Campus Security',
-            expiresAt: '27/8/2025 6:00pm'
-        },
-        {
-            id: '2',
-            title: 'Heavy Rain Warning',
-            description: 'Heavy rainfall expected. Campus pathways may be slippery. Use covered walkways.',
-            category: 'weather',
-            severity: 'medium',
-            timestamp: '26/8/2025 4:45pm',
-            location: 'Campus-wide',
-            coordinates: { latitude: 5.4164, longitude: 100.3327 },
-            verifiedBy: 'Meteorological Department',
-            expiresAt: '27/8/2025 12:00pm'
-        },
-        {
-            id: '3',
-            title: 'Security Incident',
-            description: 'Suspicious activity reported near Library. Security personnel deployed. Stay alert.',
-            category: 'emergency',
-            severity: 'critical',
-            timestamp: '26/8/2025 4:30pm',
-            location: 'Library Area, USM',
-            coordinates: { latitude: 5.4174, longitude: 100.3337 },
-            radius: 200,
-            verifiedBy: 'Campus Security',
-            expiresAt: '26/8/2025 8:00pm'
-        },
-        {
-            id: '4',
-            title: 'Bus Service Disruption',
-            description: 'Campus bus service temporarily suspended due to road maintenance.',
-            category: 'facility',
-            severity: 'medium',
-            timestamp: '26/8/2025 4:00pm',
-            location: 'Main Bus Terminal',
-            coordinates: { latitude: 5.4154, longitude: 100.3317 },
-            verifiedBy: 'Transport Department',
-            expiresAt: '27/8/2025 6:00am'
-        }
-    ]);
+    const [adminAlerts] = useState<AdminAlert[]>(() => {
+        // Optional validation logic
+        return alertsData.adminAlerts as AdminAlert[];
+    });
 
     const getCategoryColor = (category: string) => {
         switch (category) {

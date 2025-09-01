@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
 import styles from '../../components/styles/indexStyles';
+import indexData from './indexData.json';
 
 interface EmergencyContact {
   id: string;
@@ -48,12 +49,7 @@ export default function SOSScreen() {
   const isDark = useColorScheme() === 'dark';
   const countdownAnimation = useRef(new Animated.Value(1)).current;
 
-  const emergencyContacts: EmergencyContact[] = [
-    { id: '1', name: 'Sarah Chen', phone: '+1 555-0101', status: 'watching' },
-    { id: '2', name: 'Mike Johnson', phone: '+1 555-0102', status: 'on-way', eta: '4m' },
-    { id: '3', name: 'Emma Davis', phone: '+1 555-0103', status: 'delivered' },
-    { id: '4', name: 'Campus Security', phone: '+1 555-0000', status: 'watching' },
-  ];
+  const emergencyContacts: EmergencyContact[] = indexData.emergencyContacts as EmergencyContact[];
 
   const handleEmergencySOS = () => {
     setCountdownActive(true);

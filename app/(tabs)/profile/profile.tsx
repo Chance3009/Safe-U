@@ -11,7 +11,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
 
-import styles from "../../components/styles/profileStyles";
+import styles from "../../../components/styles/profileStyles";
+// Import the data from the JSON file
+import profileData from "./profileData.json";
 
 export default function ProfileScreen() {
   const [locationSharing, setLocationSharing] = useState(true);
@@ -25,75 +27,8 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const emergencyContacts = [
-    {
-      id: "1",
-      name: "Mom",
-      phone: "+1 555-0101",
-      relationship: "Parent",
-      isPrimary: true,
-    },
-    {
-      id: "2",
-      name: "Dad",
-      phone: "+1 555-0102",
-      relationship: "Parent",
-      isPrimary: false,
-    },
-    {
-      id: "3",
-      name: "Sarah (Best Friend)",
-      phone: "+1 555-0103",
-      relationship: "Friend",
-      isPrimary: false,
-    },
-    {
-      id: "4",
-      name: "Mike (Roommate)",
-      phone: "+1 555-0104",
-      relationship: "Roommate",
-      isPrimary: false,
-    },
-  ];
-
-  const appSettings = [
-    {
-      id: "1",
-      title: "Accessibility",
-      icon: "accessibility",
-      description: "Voice commands, haptic feedback",
-    },
-    {
-      id: "2",
-      title: "Language",
-      icon: "language",
-      description: "English (US)",
-    },
-    {
-      id: "3",
-      title: "About SafeU",
-      icon: "information-circle",
-      description: "Version 1.0.0",
-    },
-    {
-      id: "4",
-      title: "Help & Support",
-      icon: "help-circle",
-      description: "FAQ and contact support",
-    },
-    {
-      id: "5",
-      title: "Privacy Policy",
-      icon: "shield-checkmark",
-      description: "Data usage and privacy",
-    },
-    {
-      id: "6",
-      title: "Terms of Service",
-      icon: "document-text",
-      description: "App usage terms",
-    },
-  ];
+  // Use the imported data instead of hardcoded arrays
+  const { emergencyContacts, appSettings } = profileData;
 
   const handleEditProfile = () => {
     if (isEditingProfile) {
