@@ -419,6 +419,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  scrollContent: {
+    flex: 1,
+    width: '100%',
+  },
 });
 
 export default styles;

@@ -13,8 +13,9 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: '#FF0000' }}>
+      {/* Changed from "index/index" to "index" to match actual file structure */}
       <Tabs.Screen
-        name="index/index"
+        name="index"
         options={{
           title: 'SOS',
           headerShown: false,
@@ -65,7 +66,7 @@ export default function TabLayout() {
       {/* Hide controller files from tabs */}
       <Tabs.Screen 
         name="community/_CommunityController" 
-        options={{ href: null }} // This prevents the route from being navigable
+        options={{ href: null }}
       />
       <Tabs.Screen 
         name="safety/_SafetyController" 
