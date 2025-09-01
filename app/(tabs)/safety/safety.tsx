@@ -13,21 +13,21 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
 
-import styles from "../../components/styles/safetyStyles";
-
-interface Friend {
-  id: string;
-  name: string;
-  avatar: string;
-  isOnline: boolean;
-  isSelected: boolean;
-}
-
-interface Location {
-  latitude: number;
-  longitude: number;
-  name: string;
-}
+import styles from "../../../components/styles/safetyStyles";
+import safetyData from "./safetyData.json";
+import {
+  Location,
+  Friend,
+  handleStartFriendWalk as controllerStartFriendWalk,
+  handleStartWalk as controllerStartWalk,
+  handleEndFriendWalk as controllerEndFriendWalk,
+  handleCheckIn as controllerHandleCheckIn,
+  toggleFriendSelection as controllerToggleFriendSelection,
+  selectLocation as controllerSelectLocation,
+  openLocationPicker as controllerOpenLocationPicker,
+  getETA as controllerGetETA,
+  formatTime as controllerFormatTime
+} from "./_SafetyController";
 
 export default function SafetyScreen() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -57,56 +57,11 @@ export default function SafetyScreen() {
   const isDark = useColorScheme() === "dark";
   const checkInTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [friends] = useState<Friend[]>([
-    {
-      id: "1",
-      name: "Sarah Chen",
-      avatar: "👩‍🦰",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "2",
-      name: "Mike Johnson",
-      avatar: "👨‍🦱",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "3",
-      name: "Emma Davis",
-      avatar: "👩‍🦳",
-      isOnline: false,
-      isSelected: false,
-    },
-    {
-      id: "4",
-      name: "Alex Kim",
-      avatar: "👨‍🦲",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "5",
-      name: "Jordan Lee",
-      avatar: "👩‍🦱",
-      isOnline: false,
-      isSelected: false,
-    },
-  ]);
+  const [friends] = useState<Friend[]>(safetyData.friends);
 
-  const [recentLocations] = useState<Location[]>([
-    { latitude: 37.78825, longitude: -122.4324, name: "Library" },
-    { latitude: 37.78925, longitude: -122.4334, name: "Student Center" },
-    { latitude: 37.78725, longitude: -122.4314, name: "Dorm Building A" },
-    { latitude: 37.79025, longitude: -122.4344, name: "Science Building" },
-  ]);
+  const [recentLocations] = useState<Location[]>(safetyData.recentLocations);
 
-  const [safePoints] = useState<Location[]>([
-    { latitude: 37.78875, longitude: -122.4329, name: "Guard Post 1" },
-    { latitude: 37.78975, longitude: -122.4339, name: "24hr Lab" },
-    { latitude: 37.78775, longitude: -122.4319, name: "Well-lit Path" },
-  ]);
+  const [safePoints] = useState<Location[]>(safetyData.safePoints);
 
   useEffect(() => {
     if (isFriendWalkActive && currentScreen === "active") {
@@ -421,7 +376,7 @@ export default function SafetyScreen() {
           <View
             style={[
               styles.section,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+              { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
             ]}
           >
             <Text
@@ -492,7 +447,7 @@ export default function SafetyScreen() {
           <View
             style={[
               styles.section,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+              { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
             ]}
           >
             <Text
@@ -552,7 +507,7 @@ export default function SafetyScreen() {
             <View
               style={[
                 styles.locationPickerModal,
-                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
               ]}
             >
               <View style={styles.modalHeader}>
@@ -648,19 +603,21 @@ export default function SafetyScreen() {
           { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
         ]}
       >
+        {/* Header with added marginTop */}
         <View style={[
           styles.header,
-          { paddingBottom: 0 } // Reduce padding to remove the gap
+          { 
+            paddingBottom: 0,
+            marginTop: 20 // Add margin to push header down from status bar
+          }
         ]}>
           <View style={styles.headerTitleRow}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => {
-                // Navigate back - you might need to use navigation
-                // If using Expo Router, you could use router.back()
+                // Navigate back logic
               }}
             >
-              
             </TouchableOpacity>
             <Text
               style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
@@ -675,145 +632,151 @@ export default function SafetyScreen() {
           </Text>
         </View>
 
-        {/* Safety Cards - start right after header with no gap */}
-        <View style={[styles.cardsContainer, { marginTop: 8 }]}>
-          {/* FriendWalk Card */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-            onPress={() => setCurrentScreen("setup")}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="people" size={32} color="#007AFF" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                FriendWalk
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Set destination, share route, timed check-ins
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Start Walk</Text>
-              <Ionicons name="arrow-forward" size={20} color="#007AFF" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Safe-Haven Card */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="shield-checkmark" size={32} color="#34C759" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                Safe-Haven
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Find nearby safe locations and guard posts
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Find Safe Spots</Text>
-              <Ionicons name="arrow-forward" size={20} color="#34C759" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Bus Card (Optional P1) */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="bus" size={32} color="#FF9500" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                Campus Bus
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Track university transport and schedules
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Track Bus</Text>
-              <Ionicons name="arrow-forward" size={20} color="#FF9500" />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Safety Check-in Section */}
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
-          ]}
+        {/* Wrap content in ScrollView */}
+        <ScrollView 
+          style={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.settingItem}>
-            <View style={styles.settingInfo}>
-              <Ionicons name="shield-checkmark" size={24} color="#34C759" />
-              <View style={styles.settingText}>
+          {/* Safety Cards */}
+          <View style={[styles.cardsContainer, { marginTop: 8 }]}>
+            {/* FriendWalk Card */}
+            <TouchableOpacity
+              style={[
+                styles.safetyCard,
+                { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
+              ]}
+              onPress={() => setCurrentScreen("setup")}
+            >
+              <View style={styles.cardHeader}>
+                <Ionicons name="people" size={32} color="#007AFF" />
                 <Text
                   style={[
-                    styles.settingTitle,
+                    styles.cardTitle,
                     { color: isDark ? "#ffffff" : "#000000" },
                   ]}
                 >
-                  Safety Check-ins
-                </Text>
-                <Text
-                  style={[
-                    styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
-                  ]}
-                >
-                  Periodic safety confirmations
+                  FriendWalk
                 </Text>
               </View>
-            </View>
-            <View style={styles.switchContainer}>
-              <Switch
-                value={safetyCheckInEnabled}
-                onValueChange={setSafetyCheckInEnabled}
-                trackColor={{ false: "#767577", true: "#34C759" }}
-                thumbColor={safetyCheckInEnabled ? "#ffffff" : "#f4f3f4"}
-              />
+              <Text
+                style={[
+                  styles.cardDescription,
+                  { color: isDark ? "#999999" : "#666666" },
+                ]}
+              >
+                Set destination, share route, timed check-ins
+              </Text>
+              <View style={styles.cardAction}>
+                <Text style={styles.cardActionText}>Start Walk</Text>
+                <Ionicons name="arrow-forward" size={20} color="#007AFF" />
+              </View>
+            </TouchableOpacity>
+
+            {/* Safe-Haven Card */}
+            <TouchableOpacity
+              style={[
+                styles.safetyCard,
+                { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
+              ]}
+            >
+              <View style={styles.cardHeader}>
+                <Ionicons name="shield-checkmark" size={32} color="#34C759" />
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  Safe-Haven
+                </Text>
+              </View>
+              <Text
+                style={[
+                  styles.cardDescription,
+                  { color: isDark ? "#999999" : "#666666" },
+                ]}
+              >
+                Find nearby safe locations and guard posts
+              </Text>
+              <View style={styles.cardAction}>
+                <Text style={styles.cardActionText}>Find Safe Spots</Text>
+                <Ionicons name="arrow-forward" size={20} color="#34C759" />
+              </View>
+            </TouchableOpacity>
+
+            {/* Bus Card (Optional P1) */}
+            <TouchableOpacity
+              style={[
+                styles.safetyCard,
+                { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
+              ]}
+            >
+              <View style={styles.cardHeader}>
+                <Ionicons name="bus" size={32} color="#FF9500" />
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  Campus Bus
+                </Text>
+              </View>
+              <Text
+                style={[
+                  styles.cardDescription,
+                  { color: isDark ? "#999999" : "#666666" },
+                ]}
+              >
+                Track university transport and schedules
+              </Text>
+              <View style={styles.cardAction}>
+                <Text style={styles.cardActionText}>Track Bus</Text>
+                <Ionicons name="arrow-forward" size={20} color="#FF9500" />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Safety Check-in Section */}
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
+            ]}
+          >
+            <View style={styles.settingItem}>
+              <View style={styles.settingInfo}>
+                <Ionicons name="shield-checkmark" size={24} color="#34C759" />
+                <View style={styles.settingText}>
+                  <Text
+                    style={[
+                      styles.settingTitle,
+                      { color: isDark ? "#ffffff" : "#000000" },
+                    ]}
+                  >
+                    Safety Check-ins
+                  </Text>
+                  <Text
+                    style={[
+                      styles.settingDescription,
+                      { color: isDark ? "#999999" : "#666666" },
+                    ]}
+                  >
+                    Periodic safety confirmations
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.switchContainer}>
+                <Switch
+                  value={safetyCheckInEnabled}
+                  onValueChange={setSafetyCheckInEnabled}
+                  trackColor={{ false: "#767577", true: "#34C759" }}
+                  thumbColor={safetyCheckInEnabled ? "#ffffff" : "#f4f3f4"}
+                />
+              </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </View>
     );
   }
@@ -827,7 +790,8 @@ export default function SafetyScreen() {
           { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
         ]}
       >
-        <View style={styles.waitingHeader}>
+        {/* Header with added marginTop */}
+        <View style={[styles.waitingHeader, { marginTop: 20 }]}>
           <Text
             style={[
               styles.waitingTitle,
@@ -846,49 +810,51 @@ export default function SafetyScreen() {
           </Text>
         </View>
 
-        <View style={styles.waitingContent}>
-          <View style={styles.inviteStatus}>
-            <Ionicons name="people" size={64} color="#007AFF" />
-            <Text
-              style={[
-                styles.inviteStatusText,
-                { color: isDark ? "#ffffff" : "#000000" },
-              ]}
-            >
-              Invites sent to:{" "}
-              {selectedFriends
-                .map((id) => friends.find((f) => f.id === id)?.name)
-                .join(", ")}
-            </Text>
-          </View>
+        <ScrollView style={styles.scrollContent}>
+          <View style={styles.waitingContent}>
+            <View style={styles.inviteStatus}>
+              <Ionicons name="people" size={64} color="#007AFF" />
+              <Text
+                style={[
+                  styles.inviteStatusText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Invites sent to:{" "}
+                {selectedFriends
+                  .map((id) => friends.find((f) => f.id === id)?.name)
+                  .join(", ")}
+              </Text>
+            </View>
 
-          <View style={styles.shareSection}>
-            <Text
-              style={[
-                styles.shareTitle,
-                { color: isDark ? "#ffffff" : "#000000" },
-              ]}
+            <View style={styles.shareSection}>
+              <Text
+                style={[
+                  styles.shareTitle,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Share with others
+              </Text>
+              <TouchableOpacity style={styles.shareButton}>
+                <Ionicons name="share" size={24} color="#007AFF" />
+                <Text style={styles.shareButtonText}>Share deep-link</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.shareButton}>
+                <Ionicons name="qr-code" size={24} color="#34C759" />
+                <Text style={styles.shareButtonText}>Copy/QR</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.startWalkButton, { backgroundColor: "#34C759" }]}
+              onPress={handleStartWalk}
             >
-              Share with others
-            </Text>
-            <TouchableOpacity style={styles.shareButton}>
-              <Ionicons name="share" size={24} color="#007AFF" />
-              <Text style={styles.shareButtonText}>Share deep-link</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.shareButton}>
-              <Ionicons name="qr-code" size={24} color="#34C759" />
-              <Text style={styles.shareButtonText}>Copy/QR</Text>
+              <Ionicons name="play-circle" size={24} color="white" />
+              <Text style={styles.startWalkButtonText}>Start Walk Now</Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={[styles.startWalkButton, { backgroundColor: "#34C759" }]}
-            onPress={handleStartWalk}
-          >
-            <Ionicons name="play-circle" size={24} color="white" />
-            <Text style={styles.startWalkButtonText}>Start Walk Now</Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     );
   }
@@ -902,7 +868,8 @@ export default function SafetyScreen() {
           { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
         ]}
       >
-        <View style={styles.activeHeader}>
+        {/* Header with added marginTop */}
+        <View style={[styles.activeHeader, { marginTop: 20 }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={handleEndFriendWalk}
@@ -912,65 +879,70 @@ export default function SafetyScreen() {
           <Text style={styles.activeHeaderText}>FriendWalk Active</Text>
         </View>
 
-        {/* Map with Route */}
-        <View style={styles.activeMapContainer}>
-          <MapView
-            style={styles.activeMap}
-            initialRegion={{
-              latitude: (fromLocation.latitude + toLocation.latitude) / 2,
-              longitude: (fromLocation.longitude + toLocation.longitude) / 2,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker coordinate={fromLocation} title="From" pinColor="#007AFF" />
-            <Marker coordinate={toLocation} title="To" pinColor="#34C759" />
-            {routeCoordinates.length > 1 && (
-              <Polyline
-                coordinates={routeCoordinates}
-                strokeColor="#007AFF"
-                strokeWidth={3}
-                lineDashPattern={[5, 5]}
-              />
-            )}
-          </MapView>
-        </View>
-
-        {/* Timer and Controls */}
-        <View
-          style={[
-            styles.activeControls,
-            { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
-          ]}
+        <ScrollView 
+          style={styles.scrollContent}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
-          <View style={styles.timerChip}>
-            <Ionicons name="timer" size={20} color="#FF9500" />
-            <Text style={styles.timerText}>
-              Next check-in in {formatTime(nextCheckIn)}
-            </Text>
+          {/* Map with Route */}
+          <View style={styles.activeMapContainer}>
+            <MapView
+              style={styles.activeMap}
+              initialRegion={{
+                latitude: (fromLocation.latitude + toLocation.latitude) / 2,
+                longitude: (fromLocation.longitude + toLocation.longitude) / 2,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker coordinate={fromLocation} title="From" pinColor="#007AFF" />
+              <Marker coordinate={toLocation} title="To" pinColor="#34C759" />
+              {routeCoordinates.length > 1 && (
+                <Polyline
+                  coordinates={routeCoordinates}
+                  strokeColor="#007AFF"
+                  strokeWidth={3}
+                  lineDashPattern={[5, 5]}
+                />
+              )}
+            </MapView>
           </View>
 
-          <View style={styles.controlButtons}>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={handleCheckIn}
-            >
-              <Ionicons name="checkmark-circle" size={24} color="#34C759" />
-              <Text style={styles.controlButtonText}>Check-in now</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.controlButton}>
-              <Ionicons name="pause-circle" size={24} color="#FF9500" />
-              <Text style={styles.controlButtonText}>Pause</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={handleEndFriendWalk}
-            >
-              <Ionicons name="stop-circle" size={24} color="#FF3B30" />
-              <Text style={styles.controlButtonText}>End</Text>
-            </TouchableOpacity>
+          {/* Timer and Controls */}
+          <View
+            style={[
+              styles.activeControls,
+              { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
+            ]}
+          >
+            <View style={styles.timerChip}>
+              <Ionicons name="timer" size={20} color="#FF9500" />
+              <Text style={styles.timerText}>
+                Next check-in in {formatTime(nextCheckIn)}
+              </Text>
+            </View>
+
+            <View style={styles.controlButtons}>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={handleCheckIn}
+              >
+                <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                <Text style={styles.controlButtonText}>Check-in now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.controlButton}>
+                <Ionicons name="pause-circle" size={24} color="#FF9500" />
+                <Text style={styles.controlButtonText}>Pause</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={handleEndFriendWalk}
+              >
+                <Ionicons name="stop-circle" size={24} color="#FF3B30" />
+                <Text style={styles.controlButtonText}>End</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </View>
     );
   }

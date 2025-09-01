@@ -1,0 +1,29 @@
+{
+  "emergencyContacts": [
+    { 
+      "id": "1", 
+      "name": "Sarah Chen", 
+      "phone": "+1 555-0101", 
+      "status": "watching"
+    },
+    { 
+      "id": "2", 
+      "name": "Mike Johnson", 
+      "phone": "+1 555-0102", 
+      "status": "on-way", 
+      "eta": "4m" 
+    },
+    { 
+      "id": "3", 
+      "name": "Emma Davis", 
+      "phone": "+1 555-0103", 
+      "status": "delivered" 
+    },
+    { 
+      "id": "4", 
+      "name": "Campus Security", 
+      "phone": "+1 555-0000", 
+      "status": "watching" 
+    }
+  ]
+}

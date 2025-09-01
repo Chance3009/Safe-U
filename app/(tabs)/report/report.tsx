@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch } fr
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/components/useColorScheme';
 
-import styles from '../../components/styles/reportStyles';
+import styles from '../../../components/styles/reportStyles';
 
 export default function ReportScreen() {
     const [isRecording, setIsRecording] = useState(false);
