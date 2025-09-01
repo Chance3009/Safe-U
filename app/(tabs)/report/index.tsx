@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/components/useColorScheme';
-
 import styles from '../../../components/styles/reportStyles';
+import reportData from './reportData.json';
 
 export default function ReportScreen() {
     const [isRecording, setIsRecording] = useState(false);
@@ -15,19 +16,8 @@ export default function ReportScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
-    const categories = [
-        { id: 'security', name: 'Security Concern', icon: 'shield', color: '#FF4444' },
-        { id: 'harassment', name: 'Harassment', icon: 'warning', color: '#FF9500' },
-        { id: 'facility', name: 'Facility Issue', icon: 'build', color: '#007AFF' },
-        { id: 'suspicious', name: 'Suspicious Activity', icon: 'eye', color: '#AF52DE' },
-        { id: 'other', name: 'Other', icon: 'ellipsis-horizontal', color: '#666666' },
-    ];
-
-    const reportStatuses = [
-        { id: '1', title: 'Suspicious person near library', category: 'Security Concern', status: 'open', date: '2024-01-15' },
-        { id: '2', title: 'Broken streetlight on campus', category: 'Facility Issue', status: 'acknowledged', date: '2024-01-14' },
-        { id: '3', title: 'Harassment in parking lot', category: 'Harassment', status: 'resolved', date: '2024-01-10' },
-    ];
+    const categories = reportData.categories;
+    const reportStatuses = reportData.reportStatuses;
 
     const handleVoiceReport = () => {
         if (isRecording) {
