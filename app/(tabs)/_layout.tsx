@@ -62,16 +62,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
         }}
       />
-      
-      {/* Hide controller files from tabs */}
-      <Tabs.Screen 
-        name="community/_CommunityController" 
-        options={{ href: null }}
-      />
-      <Tabs.Screen 
-        name="safety/_SafetyController" 
-        options={{ href: null }}
-      />
     </Tabs>
   );
 }

@@ -27,7 +27,7 @@ import {
   openLocationPicker as controllerOpenLocationPicker,
   getETA as controllerGetETA,
   formatTime as controllerFormatTime
-} from "./_SafetyController";
+} from "../../../controllers/SafetyController";
 
 export default function SafetyScreen() {
   const [currentScreen, setCurrentScreen] = useState<

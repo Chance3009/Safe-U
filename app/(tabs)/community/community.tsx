@@ -26,7 +26,7 @@ import {
   handleEscalation,
   handleNavigateToAlerts,
   filterPosts
-} from "./_CommunityController";
+} from "../../../controllers/CommunityController";
 
 interface CommunityPost {
   id: string;
