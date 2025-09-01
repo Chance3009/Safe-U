@@ -23,7 +23,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="safety/safety"
+        name="safety"
         options={{
           title: 'Safety',
           headerShown: false,
@@ -31,7 +31,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="report/report"
+        name="report/index"
         options={{
           title: 'Report',
           headerShown: false,
@@ -39,7 +39,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="community/community"
+        name="community/index"
         options={{
           title: 'Community',
           headerShown: false,
@@ -47,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="alerts/alerts"
+        name="alerts/index"
         options={{
           title: 'Alerts',
           headerShown: false,
@@ -55,7 +55,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile/profile"
+        name="profile/index"
         options={{
           title: 'Profile',
           headerShown: false,

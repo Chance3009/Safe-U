@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 8,
+    marginTop: 50,
   },
   subtitle: {
     fontSize: 16,
@@ -415,8 +416,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 8,
   },
   scrollContent: {
