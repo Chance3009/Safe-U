@@ -351,7 +351,7 @@ export default function CommunityScreen() {
               key={post.id}
               style={[
                 styles.postCard,
-                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
               ]}
             >
               {/* Post Header */}
@@ -484,7 +484,7 @@ export default function CommunityScreen() {
                   >
                     <Ionicons name="arrow-up" size={20} color="#34C759" />
                     <Text style={[styles.voteCount, { color: "#34C759" }]}>
-                      ↑{formatNumber(post.upvotes)}
+                      {formatNumber(post.upvotes)} {/* Removed the "↑" arrow symbol */}
                     </Text>
                   </TouchableOpacity>
 
@@ -494,7 +494,7 @@ export default function CommunityScreen() {
                   >
                     <Ionicons name="arrow-down" size={20} color="#FF3B30" />
                     <Text style={[styles.voteCount, { color: "#FF3B30" }]}>
-                      ↓{formatNumber(post.downvotes)}
+                      {formatNumber(post.downvotes)} {/* Removed the "↓" arrow symbol */}
                     </Text>
                   </TouchableOpacity>
                 </View>

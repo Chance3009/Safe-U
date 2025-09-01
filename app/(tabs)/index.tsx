@@ -191,12 +191,15 @@ export default function SOSScreen() {
         </View>
       )}
 
-      {/* Main SOS Button */}
-      <View style={styles.sosContainer}>
+      {/* Main SOS Button - Changed to rectangular when active */}
+      <View style={[
+        styles.sosContainer,
+        isEmergencyActive && styles.sosContainerActive
+      ]}>
         <TouchableOpacity
           style={[
             styles.sosButton,
-            isEmergencyActive && styles.sosButtonActive,
+            isEmergencyActive ? styles.endSosButton : null,
             { backgroundColor: isEmergencyActive ? '#FF4444' : '#FF0000' }
           ]}
           onPress={isEmergencyActive ? handleEndEmergency : handleEmergencySOS}
@@ -204,7 +207,7 @@ export default function SOSScreen() {
         >
           <Ionicons
             name={isEmergencyActive ? "checkmark-circle" : "warning"}
-            size={80}
+            size={isEmergencyActive ? 40 : 60}
             color="white"
           />
           <Text style={styles.sosButtonText}>
@@ -223,7 +226,7 @@ export default function SOSScreen() {
         )}
       </View>
 
-      {/* Map View when SOS is active */}
+      {/* Map View when SOS is active - Adjusted position */}
       {isEmergencyActive && (
         <View style={styles.mapContainer}>
           <MapView
@@ -333,7 +336,11 @@ export default function SOSScreen() {
             )}
 
             {selectedTab === 'people' && (
-              <View style={styles.peopleTab}>
+              <ScrollView 
+                style={styles.peopleTab}
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={styles.peopleTabContent}
+              >
                 {emergencyContacts.map((contact) => (
                   <View key={contact.id} style={styles.contactItem}>
                     <View style={styles.contactInfo}>
@@ -358,7 +365,7 @@ export default function SOSScreen() {
                     </View>
                   </View>
                 ))}
-              </View>
+              </ScrollView>
             )}
 
             {selectedTab === 'actions' && (
