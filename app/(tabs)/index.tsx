@@ -13,7 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
-import styles from '../../components/styles/indexStyles';
+import styles from '../styles/indexStyles';
 import indexData from './indexData.json';
 
 interface EmergencyContact {

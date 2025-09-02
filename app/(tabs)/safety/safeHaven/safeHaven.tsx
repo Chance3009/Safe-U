@@ -2,21 +2,18 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
   Linking,
-  Dimensions,
   useColorScheme,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-
-const { width } = Dimensions.get("window");
+import safeHavenData from "./safeHavenData.json"
+import styles from "@/app/styles/safeHavenStyles";
 
 // Types for TypeScript
-export interface SafeHaven {
+interface SafeHaven {
   id: number;
   name: string;
   type: string;
@@ -35,69 +32,8 @@ interface EmergencyContact {
   type: string;
 }
 
-// Mock data for safe havens - in a real app, this would come from your backend
-const safeHavens: SafeHaven[] = [
-  {
-    id: 1,
-    name: "Security Department HQ",
-    type: "Security",
-    description: "24/7 manned security office with emergency response team",
-    distance: "0.3 km",
-    estimatedTime: "4 min walk",
-    coordinates: { latitude: 3.1390, longitude: 101.6869 }, // Example coordinates
-    phone: "+60-3-1234-5678",
-    features: ["Emergency Response", "CCTV Monitoring", "First Aid"],
-    isOpen: true,
-  },
-  {
-    id: 2,
-    name: "Main Mosque",
-    type: "Religious",
-    description: "University mosque with regular congregation and security presence",
-    distance: "0.5 km",
-    estimatedTime: "6 min walk",
-    coordinates: { latitude: 3.1395, longitude: 101.6875 },
-    phone: "+60-3-1234-5679",
-    features: ["24/7 Access", "Security Guards", "Well-lit Area"],
-    isOpen: true,
-  },
-  {
-    id: 3,
-    name: "Student Dormitory A",
-    type: "Residential",
-    description: "Main student housing with security desk and resident assistants",
-    distance: "0.8 km",
-    estimatedTime: "10 min walk",
-    coordinates: { latitude: 3.1400, longitude: 101.6880 },
-    phone: "+60-3-1234-5680",
-    features: ["Security Desk", "Resident Assistants", "Emergency Contacts"],
-    isOpen: true,
-  },
-  {
-    id: 4,
-    name: "Campus Police Station",
-    type: "Law Enforcement",
-    description: "Dedicated campus police unit with emergency response vehicles",
-    distance: "1.2 km",
-    estimatedTime: "15 min walk",
-    coordinates: { latitude: 3.1405, longitude: 101.6885 },
-    phone: "+60-3-1234-5681",
-    features: ["Emergency Response", "Vehicle Patrol", "Criminal Reporting"],
-    isOpen: true,
-  },
-  {
-    id: 5,
-    name: "Library Security Desk",
-    type: "Academic",
-    description: "24/7 library with security personnel and emergency exits",
-    distance: "0.6 km",
-    estimatedTime: "8 min walk",
-    coordinates: { latitude: 3.1392, longitude: 101.6872 },
-    phone: "+60-3-1234-5682",
-    features: ["24/7 Access", "Security Personnel", "Emergency Exits"],
-    isOpen: true,
-  },
-];
+// Mock data for safe havens
+const safeHavens: SafeHaven[] = safeHavenData.safehavens;
 
 const emergencyContacts: EmergencyContact[] = [
   { name: "Campus Emergency", number: "+60-3-1234-9999", type: "Emergency" },
@@ -108,11 +44,39 @@ const emergencyContacts: EmergencyContact[] = [
 export default function SafeHavenScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const router = useRouter();
+  const [selectedHaven, setSelectedHaven] = useState<SafeHaven | null>(null);
 
   const handleNavigateToHaven = (haven: SafeHaven) => {
-    // Navigate to the navigation screen with the selected haven
-    router.push(`./safeHaven/navigation?havenId=${haven.id.toString()}`);
+    Alert.alert(
+      "Navigate to Safe Haven",
+      `Would you like to navigate to ${haven.name}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Navigate",
+          onPress: () => {
+            // In a real app, this would integrate with navigation apps
+            // For now, we'll show an alert with directions
+            Alert.alert(
+              "Navigation Started",
+              `Heading to ${haven.name}\nDistance: ${haven.distance}\nEstimated time: ${haven.estimatedTime}`,
+              [
+                {
+                  text: "Call for Help",
+                  onPress: () => handleCall(haven.phone),
+                },
+                {
+                  text: "OK",
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
   };
 
   const handleCall = (phoneNumber: string) => {
@@ -318,174 +282,3 @@ export default function SafeHavenScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  header: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-  },
-  section: {
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  sectionDescription: {
-    fontSize: 14,
-    marginBottom: 15,
-  },
-  emergencyContact: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  contactInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  contactName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  contactNumber: {
-    fontSize: 14,
-    color: "#666",
-  },
-  contactType: {
-    fontSize: 12,
-    color: "#999",
-  },
-  havenCard: {
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  havenHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  typeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    alignSelf: "flex-start",
-  },
-  typeText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "bold",
-    marginLeft: 5,
-  },
-  distanceInfo: {
-    alignItems: "flex-end",
-  },
-  distanceText: {
-    fontSize: 14,
-    color: "#666",
-  },
-  timeText: {
-    fontSize: 12,
-    color: "#999",
-  },
-  havenName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  havenDescription: {
-    fontSize: 14,
-    marginBottom: 10,
-  },
-  featuresContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 10,
-  },
-  featureTag: {
-    backgroundColor: "#e0e0e0",
-    borderRadius: 15,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginRight: 5,
-    marginBottom: 5,
-  },
-  featureText: {
-    fontSize: 12,
-    color: "#333",
-  },
-  havenActions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
-  },
-  navigateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#4ECDC4",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    width: "45%",
-  },
-  navigateButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginLeft: 5,
-  },
-  callButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF6B6B",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    width: "45%",
-  },
-  callButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginLeft: 5,
-  },
-  tipItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  tipText: {
-    fontSize: 14,
-    marginLeft: 10,
-  },
-});

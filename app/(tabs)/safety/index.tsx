@@ -10,7 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import styles from "../../../components/styles/safetyStyles";
+import styles from "../../styles/safetyStyles";
 
 export default function SafetyScreen() {
   // Safety Home Screen
@@ -88,8 +88,9 @@ export default function SafetyScreen() {
         <TouchableOpacity
           style={[
             styles.safetyCard,
-            { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+            { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
           ]}
+          onPress={() => router.push("/safety/safeHaven")}
         >
           <View style={styles.cardHeader}>
             <Ionicons name="shield-checkmark" size={32} color="#34C759" />

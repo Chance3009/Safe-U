@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polygon, Callout } from 'react-native-maps';
 
-import styles from '../../../components/styles/alertStyles';
+import styles from '../../styles/alertStyles';
 import alertsData from './alertsData.json';
 
 interface AdminAlert {
