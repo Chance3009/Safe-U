@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/components/useColorScheme';
-
 import styles from '../../../components/styles/reportStyles';
+import reportData from './reportData.json';
+
+// Import controller functions
+import {
+    handleVoiceReport as handleVoiceReportController,
+    handleSubmitReport as handleSubmitReportController,
+    getStatusColor,
+    getStatusIcon
+} from '../../../controllers/ReportControllers';
 
 export default function ReportScreen() {
+
     const [isRecording, setIsRecording] = useState(false);
-    const [reportType, setReportType] = useState('security');
+    // const [reportType, setReportType] = useState('security'); "removed for now as its not being used"
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [reportTitle, setReportTitle] = useState('');
     const [reportDescription, setReportDescription] = useState('');
@@ -15,69 +24,25 @@ export default function ReportScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
-    const categories = [
-        { id: 'security', name: 'Security Concern', icon: 'shield', color: '#FF4444' },
-        { id: 'harassment', name: 'Harassment', icon: 'warning', color: '#FF9500' },
-        { id: 'facility', name: 'Facility Issue', icon: 'build', color: '#007AFF' },
-        { id: 'suspicious', name: 'Suspicious Activity', icon: 'eye', color: '#AF52DE' },
-        { id: 'other', name: 'Other', icon: 'ellipsis-horizontal', color: '#666666' },
-    ];
+    // Import categories and reportStatuses from reportData.json
+    const categories = reportData.categories || [];
+    const reportStatuses = reportData.reportStatuses || [];
 
-    const reportStatuses = [
-        { id: '1', title: 'Suspicious person near library', category: 'Security Concern', status: 'open', date: '2024-01-15' },
-        { id: '2', title: 'Broken streetlight on campus', category: 'Facility Issue', status: 'acknowledged', date: '2024-01-14' },
-        { id: '3', title: 'Harassment in parking lot', category: 'Harassment', status: 'resolved', date: '2024-01-10' },
-    ];
-
+    // Wrap controller for voice report to provide correct state
     const handleVoiceReport = () => {
-        if (isRecording) {
-            setIsRecording(false);
-            Alert.alert('Recording Stopped', 'Your voice report has been saved and will be processed.');
-        } else {
-            setIsRecording(true);
-            Alert.alert('Recording Started', 'Hold the button and speak your report. Release when done.');
-            // TODO: Implement actual voice recording
-            setTimeout(() => {
-                setIsRecording(false);
-                Alert.alert('Recording Complete', 'Your voice report has been processed and saved.');
-            }, 5000);
-        }
+        handleVoiceReportController(isRecording, setIsRecording);
     };
 
+    // Wrap controller for submit report to provide correct state
     const handleSubmitReport = () => {
-        if (!reportTitle || !reportDescription || !selectedCategory) {
-            Alert.alert('Missing Information', 'Please fill in all required fields.');
-            return;
-        }
-
-        Alert.alert(
-            'Report Submitted',
-            'Your report has been submitted successfully. Campus security will review it shortly.',
-            [{ text: 'OK' }]
-        );
-
-        // Reset form
-        setReportTitle('');
-        setReportDescription('');
-        setSelectedCategory('');
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'open': return '#FF4444';
-            case 'acknowledged': return '#FF9500';
-            case 'resolved': return '#34C759';
-            default: return '#666666';
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'open': return 'time';
-            case 'acknowledged': return 'checkmark-circle';
-            case 'resolved': return 'checkmark-done-circle';
-            default: return 'help-circle';
-        }
+        handleSubmitReportController({
+            reportTitle,
+            reportDescription,
+            selectedCategory,
+            setReportTitle,
+            setReportDescription,
+            setSelectedCategory
+        });
     };
 
     return (
