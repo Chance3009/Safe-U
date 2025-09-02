@@ -20,12 +20,12 @@ interface SafetyDetail {
   description: string;
   icon: string;
   color: string;
-  heroImage: string;
+  heroImage: any; // Can be string (URL) or require() statement
   keyPoints: string[];
   detailedContent: {
     section: string;
     content: string;
-    image?: string;
+    image?: any; // Can be string (URL) or require() statement
   }[];
   videoUrl?: string;
 }
@@ -53,22 +53,19 @@ const safetyDetails: Record<string, SafetyDetail> = {
         section: "Recognizing Harassment",
         content:
           "Harassment can take many forms including verbal, physical, digital, and sexual harassment. It may involve unwanted comments, gestures, following, or contact that creates an intimidating, hostile, or offensive environment.",
-        image:
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+        image: require("../assets/images/harassment-recognizing.webp"),
       },
       {
         section: "Immediate Response",
         content:
           "If you're being harassed, stay calm and assess the situation. Move to a safe location if possible. Use assertive communication to clearly state your boundaries. Don't engage in arguments or physical confrontation.",
-        image:
-          "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+        image: require("../assets/images/harassment-response.webp"),
       },
       {
         section: "Getting Help",
         content:
           "Contact campus security, local police, or trusted friends immediately. Report the incident to appropriate authorities and document everything. Seek support from counseling services or victim advocacy groups.",
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+        image: require("../assets/images/harassment-help.webp"),
       },
     ],
   },
@@ -79,8 +76,7 @@ const safetyDetails: Record<string, SafetyDetail> = {
       "Essential safety tips for walking alone, especially during nighttime",
     icon: "moon",
     color: "#FF9500",
-    heroImage:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop",
+    heroImage: require("../assets/images/walking-alone-hero.webp"),
     keyPoints: [
       "Plan your route in advance",
       "Stay in well-lit areas",
@@ -200,8 +196,7 @@ const safetyDetails: Record<string, SafetyDetail> = {
     description: "Stay safe online and protect your digital identity",
     icon: "laptop",
     color: "#AF52DE",
-    heroImage:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop",
+    heroImage: require("../assets/images/cyber-safety-hero.webp"),
     keyPoints: [
       "Use strong, unique passwords",
       "Enable two-factor authentication",
@@ -240,8 +235,7 @@ const safetyDetails: Record<string, SafetyDetail> = {
     description: "Know what to do in emergency situations and how to get help",
     icon: "medical",
     color: "#FF3B30",
-    heroImage:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop",
+    heroImage: require("../assets/images/emergency-response-hero.webp"),
     keyPoints: [
       "Know emergency numbers",
       "Stay calm and assess the situation",
@@ -326,7 +320,11 @@ export default function SafetyKnowledgeDetailScreen() {
 
       {/* Hero Image */}
       <Image
-        source={{ uri: safetyDetail.heroImage }}
+        source={
+          typeof safetyDetail.heroImage === "string"
+            ? { uri: safetyDetail.heroImage }
+            : safetyDetail.heroImage
+        }
         style={styles.heroImage}
         resizeMode="cover"
       />
@@ -412,7 +410,11 @@ export default function SafetyKnowledgeDetailScreen() {
             </Text>
             {section.image && (
               <Image
-                source={{ uri: section.image }}
+                source={
+                  typeof section.image === "string"
+                    ? { uri: section.image }
+                    : section.image
+                }
                 style={styles.sectionImage}
                 resizeMode="cover"
               />

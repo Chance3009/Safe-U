@@ -91,8 +91,7 @@ export default function CommunityScreen() {
         "Essential safety tips for walking alone, especially during nighttime",
       icon: "moon",
       color: "#FF9500",
-      image:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+      image: require("../../assets/images/walking-alone-hero.webp"),
     },
     {
       id: "drowning",
@@ -121,7 +120,7 @@ export default function CommunityScreen() {
       icon: "laptop",
       color: "#AF52DE",
       image:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+      require("../../assets/images/cyber-safety-hero.webp"),
     },
     {
       id: "emergency",
@@ -131,7 +130,7 @@ export default function CommunityScreen() {
       icon: "medical",
       color: "#FF3B30",
       image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+      require("../../assets/images/emergency-response-hero.webp"),
     },
   ];
 
@@ -1538,7 +1537,11 @@ export default function CommunityScreen() {
               }
             >
               <Image
-                source={{ uri: category.image }}
+                source={
+                  typeof category.image === "string"
+                    ? { uri: category.image } // remote https
+                    : category.image          // local require()
+                }
                 style={styles.categoryImage}
                 resizeMode="cover"
               />
