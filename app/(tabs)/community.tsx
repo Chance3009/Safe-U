@@ -41,6 +41,15 @@ interface CommunityPost {
   commentsList?: CommentItem[];
 }
 
+interface SafetyCategory {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  image: string;
+}
+
 import { useRouter } from "expo-router";
 import EventBus from "../../utils/eventBus";
 
@@ -48,7 +57,7 @@ export default function CommunityScreen() {
   const router = useRouter();
   const currentUserName = "You";
   const [selectedTab, setSelectedTab] = useState<
-    "reports" | "friends" | "tips" | "resources" | "anti-harassment"
+    "reports" | "safety-knowledge"
   >("reports");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<
@@ -62,6 +71,69 @@ export default function CommunityScreen() {
     useState<CommunityPost | null>(null);
 
   const isDark = useColorScheme() === "dark";
+
+  // Safety knowledge categories
+  const safetyCategories: SafetyCategory[] = [
+    {
+      id: "harassment",
+      title: "Harassment Prevention",
+      description:
+        "Learn how to identify, prevent, and respond to harassment situations",
+      icon: "shield-checkmark",
+      color: "#FF4444",
+      image:
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+    },
+    {
+      id: "walking-alone",
+      title: "Walking Alone at Night",
+      description:
+        "Essential safety tips for walking alone, especially during nighttime",
+      icon: "moon",
+      color: "#FF9500",
+      image:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+    },
+    {
+      id: "drowning",
+      title: "Water Safety & Drowning Prevention",
+      description:
+        "Stay safe around water with these crucial safety guidelines",
+      icon: "water",
+      color: "#007AFF",
+      image:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+    },
+    {
+      id: "theft",
+      title: "Theft Prevention",
+      description:
+        "Protect yourself and your belongings from theft and pickpocketing",
+      icon: "lock-closed",
+      color: "#34C759",
+      image:
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    },
+    {
+      id: "cyber-safety",
+      title: "Cyber Safety",
+      description: "Stay safe online and protect your digital identity",
+      icon: "laptop",
+      color: "#AF52DE",
+      image:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
+    },
+    {
+      id: "emergency",
+      title: "Emergency Response",
+      description:
+        "Know what to do in emergency situations and how to get help",
+      icon: "medical",
+      color: "#FF3B30",
+      image:
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+    },
+  ];
 
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([
     {
@@ -482,11 +554,68 @@ export default function CommunityScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
+          {/* Back Button - Only show when not on reports tab */}
+          {selectedTab !== "reports" && (
+            <TouchableOpacity
+              style={styles.backToReportsButton}
+              onPress={() => setSelectedTab("reports")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={20}
+                color={isDark ? "#007AFF" : "#007AFF"}
+              />
+              <Text
+                style={[
+                  styles.backToReportsText,
+                  { color: isDark ? "#007AFF" : "#007AFF" },
+                ]}
+              >
+                Back to Reports
+              </Text>
+            </TouchableOpacity>
+          )}
+
           <Text
             style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
           >
             Community Reports
           </Text>
+
+          {/* Tab Navigation */}
+          <View style={styles.tabContainer}>
+            {[
+              { key: "reports", label: "Reports", icon: "document-text" },
+              {
+                key: "safety-knowledge",
+                label: "Safety Knowledge",
+                icon: "information-circle",
+              },
+            ].map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[
+                  styles.tabButton,
+                  selectedTab === tab.key && { backgroundColor: "#007AFF" },
+                ]}
+                onPress={() => setSelectedTab(tab.key as any)}
+              >
+                <Ionicons
+                  name={tab.icon as any}
+                  size={20}
+                  color={selectedTab === tab.key ? "white" : "#666666"}
+                />
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: selectedTab === tab.key ? "white" : "#666666" },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           {/* Search Bar */}
           <View
@@ -1328,82 +1457,188 @@ export default function CommunityScreen() {
     );
   }
 
-  // Other tabs remain the same
-  return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
-      ]}
-    >
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}>
-          Community
-        </Text>
-        <Text
-          style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
-        >
-          Connect with your safety network
-        </Text>
-      </View>
-
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        {[
-          { key: "reports", label: "Reports", icon: "document-text" },
-          { key: "friends", label: "Friends", icon: "people" },
-          { key: "tips", label: "Safety Tips", icon: "shield-checkmark" },
-          { key: "resources", label: "Resources", icon: "library" },
-          {
-            key: "anti-harassment",
-            label: "Anti-Harassment",
-            icon: "hand-left",
-          },
-        ].map((tab) => (
-          <TouchableOpacity
-            key={tab.key}
-            style={[
-              styles.tabButton,
-              selectedTab === tab.key && { backgroundColor: "#007AFF" },
-            ]}
-            onPress={() => setSelectedTab(tab.key as any)}
+  // Safety Knowledge Tab
+  if (selectedTab === "safety-knowledge") {
+    return (
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text
+            style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
           >
-            <Ionicons
-              name={tab.icon as any}
-              size={20}
-              color={
-                selectedTab === tab.key
-                  ? "white"
-                  : isDark
-                  ? "#999999"
-                  : "#666666"
-              }
-            />
-            <Text
-              style={[
-                styles.tabButtonText,
-                selectedTab === tab.key && { color: "white" },
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+            Safety Knowledge
+          </Text>
+          <Text
+            style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
+          >
+            Learn essential safety tips and guidelines
+          </Text>
 
-      {/* Tab Content */}
-      <View style={styles.tabContent}>
-        <Text
+          {/* Tab Navigation */}
+          <View style={styles.tabContainer}>
+            {[
+              { key: "reports", label: "Reports", icon: "document-text" },
+
+              {
+                key: "safety-knowledge",
+                label: "Safety Knowledge",
+                icon: "information-circle",
+              },
+            ].map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[
+                  styles.tabButton,
+                  selectedTab === tab.key && { backgroundColor: "#007AFF" },
+                ]}
+                onPress={() => setSelectedTab(tab.key as any)}
+              >
+                <Ionicons
+                  name={tab.icon as any}
+                  size={20}
+                  color={
+                    selectedTab === tab.key
+                      ? "white"
+                      : isDark
+                      ? "#999999"
+                      : "#666666"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: selectedTab === tab.key ? "white" : "#666666" },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Safety Categories Grid */}
+        <View style={styles.safetyCategoriesContainer}>
+          {safetyCategories.map((category) => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.safetyCategoryCard,
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: "/safety-knowledge-detail",
+                  params: { category: category.id },
+                })
+              }
+            >
+              <Image
+                source={{ uri: category.image }}
+                style={styles.categoryImage}
+                resizeMode="cover"
+              />
+              <View style={styles.categoryContent}>
+                <View
+                  style={[
+                    styles.categoryIcon,
+                    { backgroundColor: category.color },
+                  ]}
+                >
+                  <Ionicons
+                    name={category.icon as any}
+                    size={24}
+                    color="white"
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.categoryTitle,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  {category.title}
+                </Text>
+                <Text
+                  style={[
+                    styles.categoryDescription,
+                    { color: isDark ? "#999999" : "#666666" },
+                  ]}
+                >
+                  {category.description}
+                </Text>
+                <View style={styles.categoryArrow}>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={isDark ? "#999999" : "#666666"}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Quick Safety Tips */}
+        <View
           style={[
-            styles.tabContentText,
-            { color: isDark ? "#999999" : "#666666" },
+            styles.quickTipsContainer,
+            { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
           ]}
         >
-          Select a tab to view content
-        </Text>
-      </View>
-    </View>
-  );
+          <Text
+            style={[
+              styles.quickTipsTitle,
+              { color: isDark ? "#ffffff" : "#000000" },
+            ]}
+          >
+            Quick Safety Tips
+          </Text>
+          <View style={styles.quickTipsList}>
+            <View style={styles.quickTip}>
+              <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+              <Text
+                style={[
+                  styles.quickTipText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Always stay aware of your surroundings
+              </Text>
+            </View>
+            <View style={styles.quickTip}>
+              <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+              <Text
+                style={[
+                  styles.quickTipText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Trust your instincts - if something feels wrong, it probably is
+              </Text>
+            </View>
+            <View style={styles.quickTip}>
+              <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+              <Text
+                style={[
+                  styles.quickTipText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Keep emergency contacts easily accessible
+              </Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+
+  
 }
 
 const getCategoryColor = (category: string) => {
@@ -1427,7 +1662,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 50,
-    paddingBottom: 20,
+    paddingBottom: 16,
     paddingHorizontal: 16,
   },
   title: {
@@ -1780,18 +2015,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 24,
     gap: 8,
+    flexWrap: "wrap",
   },
   tabButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     borderRadius: 20,
-    gap: 8,
+    gap: 6,
     backgroundColor: "#f0f0f0",
+    marginBottom: 8,
   },
   tabButtonText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
   },
   tabContent: {
@@ -1989,5 +2226,105 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "600",
+  },
+  // Safety Knowledge Styles
+  safetyCategoriesContainer: {
+    paddingHorizontal: 16,
+    gap: 16,
+    marginBottom: 24,
+  },
+  safetyCategoryCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  categoryImage: {
+    width: "100%",
+    height: 120,
+  },
+  categoryContent: {
+    padding: 16,
+    position: "relative",
+  },
+  categoryIcon: {
+    position: "absolute",
+    top: -20,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+    marginRight: 60,
+  },
+  categoryDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+    marginRight: 40,
+  },
+  categoryArrow: {
+    position: "absolute",
+    bottom: 16,
+    right: 16,
+  },
+  quickTipsContainer: {
+    marginHorizontal: 16,
+    marginBottom: 24,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  quickTipsTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  quickTipsList: {
+    gap: 12,
+  },
+  quickTip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  quickTipText: {
+    fontSize: 14,
+    lineHeight: 20,
+    flex: 1,
+  },
+  // Back Button Styles
+  backToReportsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    gap: 6,
+  },
+  backToReportsText: {
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
