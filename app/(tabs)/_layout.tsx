@@ -1,10 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -15,69 +11,55 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: '#FF4444',
-        tabBarInactiveTintColor: '#666666',
-        tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#ffffff',
-          borderTopColor: colorScheme === 'dark' ? '#333333' : '#e0e0e0',
-        },
-        headerStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#ffffff',
-        },
-        headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
-      }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#FF0000' }}>
+      {/* Changed from "index/index" to "index" to match actual file structure */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'SOS',
-          tabBarIcon: ({ color }) => <TabBarIcon name="warning" color={color} />,
-          tabBarLabel: 'SOS',
           headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="warning" color={color} />,
         }}
       />
       <Tabs.Screen
         name="safety"
         options={{
           title: 'Safety',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="shield-checkmark" color={color} />,
-          tabBarLabel: 'Safety',
         }}
       />
       <Tabs.Screen
-        name="report"
+        name="report/index"
         options={{
           title: 'Report',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="document-text" color={color} />,
-          tabBarLabel: 'Report',
         }}
       />
       <Tabs.Screen
-        name="community"
+        name="community/index"
         options={{
           title: 'Community',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="people" color={color} />,
-          tabBarLabel: 'Community',
         }}
       />
       <Tabs.Screen
-        name="alerts"
+        name="alerts/index"
         options={{
           title: 'Alerts',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
-          tabBarLabel: 'Alerts',
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="profile/index"
         options={{
           title: 'Profile',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
-          tabBarLabel: 'Profile',
         }}
       />
     </Tabs>

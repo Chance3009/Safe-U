@@ -2,19 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
-  Switch,
   useColorScheme,
   Modal,
   Alert,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
+import { useRouter } from "expo-router";
 
+import profileData from "./safetyData.json";
+import styles from "../../../components/styles/safetyStyles";
 interface Friend {
   id: string;
   name: string;
@@ -29,10 +28,9 @@ interface Location {
   name: string;
 }
 
-export default function SafetyScreen() {
-  const [currentScreen, setCurrentScreen] = useState<
-    "home" | "setup" | "waiting" | "active"
-  >("home");
+export default function FriendWalkScreen() {
+  const [currentScreen, setCurrentScreen] = useState<"setup" | "waiting" | "active">("setup");
+  const router = useRouter();
   const [fromLocation, setFromLocation] = useState<Location>({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -45,68 +43,21 @@ export default function SafetyScreen() {
   });
   const [isFriendWalkActive, setIsFriendWalkActive] = useState(false);
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
-  const [safetyCheckInEnabled, setSafetyCheckInEnabled] = useState(false);
+
   const [checkInInterval, setCheckInInterval] = useState(5);
   const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [locationPickerType, setLocationPickerType] = useState<"from" | "to">(
-    "from"
-  );
+  const [locationPickerType, setLocationPickerType] = useState<"from" | "to">("from");
   const [routeCoordinates, setRouteCoordinates] = useState<Location[]>([]);
 
   const isDark = useColorScheme() === "dark";
   const checkInTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [friends] = useState<Friend[]>([
-    {
-      id: "1",
-      name: "Sarah Chen",
-      avatar: "👩‍🦰",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "2",
-      name: "Mike Johnson",
-      avatar: "👨‍🦱",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "3",
-      name: "Emma Davis",
-      avatar: "👩‍🦳",
-      isOnline: false,
-      isSelected: false,
-    },
-    {
-      id: "4",
-      name: "Alex Kim",
-      avatar: "👨‍🦲",
-      isOnline: true,
-      isSelected: false,
-    },
-    {
-      id: "5",
-      name: "Jordan Lee",
-      avatar: "👩‍🦱",
-      isOnline: false,
-      isSelected: false,
-    },
-  ]);
+  const [friends] = useState<Friend[]>(profileData.friends);
 
-  const [recentLocations] = useState<Location[]>([
-    { latitude: 37.78825, longitude: -122.4324, name: "Library" },
-    { latitude: 37.78925, longitude: -122.4334, name: "Student Center" },
-    { latitude: 37.78725, longitude: -122.4314, name: "Dorm Building A" },
-    { latitude: 37.79025, longitude: -122.4344, name: "Science Building" },
-  ]);
+  const [recentLocations] = useState<Location[]>(profileData.recentLocations);
 
-  const [safePoints] = useState<Location[]>([
-    { latitude: 37.78875, longitude: -122.4329, name: "Guard Post 1" },
-    { latitude: 37.78975, longitude: -122.4339, name: "24hr Lab" },
-    { latitude: 37.78775, longitude: -122.4319, name: "Well-lit Path" },
-  ]);
+  const [safePoints] = useState<Location[]>(profileData.safePoints);
 
   useEffect(() => {
     if (isFriendWalkActive && currentScreen === "active") {
@@ -177,7 +128,7 @@ export default function SafetyScreen() {
 
   const handleEndFriendWalk = () => {
     setIsFriendWalkActive(false);
-    setCurrentScreen("home");
+    router.back();
     setSelectedFriends([]);
     setRouteCoordinates([]);
     if (checkInTimer.current) {
@@ -247,7 +198,7 @@ export default function SafetyScreen() {
         ]}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => setCurrentScreen("home")}
+            onPress={() => router.back()}
           >
             <Ionicons
               name="arrow-back"
@@ -345,7 +296,7 @@ export default function SafetyScreen() {
                     styles.routeInfoText,
                     {
                       color:
-                         isDark ? "#ffffff" : "#000000"
+                        isDark ? "#ffffff" : "#000000"
                     },
                   ]}
                 >
@@ -639,185 +590,6 @@ export default function SafetyScreen() {
     );
   }
 
-  // Safety Home Screen
-  if (currentScreen === "home") {
-    return (
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
-        ]}
-      >
-        <View style={[
-          styles.header,
-          { paddingBottom: 0 } // Reduce padding to remove the gap
-        ]}>
-          <View style={styles.headerTitleRow}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => {
-                // Navigate back - you might need to use navigation
-                // If using Expo Router, you could use router.back()
-              }}
-            >
-              
-            </TouchableOpacity>
-            <Text
-              style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
-            >
-              Safety & Navigation
-            </Text>
-          </View>
-          <Text
-            style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
-          >
-            Stay safe with friends and smart routing
-          </Text>
-        </View>
-
-        {/* Safety Cards - start right after header with no gap */}
-        <View style={[styles.cardsContainer, { marginTop: 8 }]}>
-          {/* FriendWalk Card */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-            onPress={() => setCurrentScreen("setup")}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="people" size={32} color="#007AFF" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                FriendWalk
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Set destination, share route, timed check-ins
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Start Walk</Text>
-              <Ionicons name="arrow-forward" size={20} color="#007AFF" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Safe-Haven Card */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="shield-checkmark" size={32} color="#34C759" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                Safe-Haven
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Find nearby safe locations and guard posts
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Find Safe Spots</Text>
-              <Ionicons name="arrow-forward" size={20} color="#34C759" />
-            </View>
-          </TouchableOpacity>
-
-          {/* Bus Card (Optional P1) */}
-          <TouchableOpacity
-            style={[
-              styles.safetyCard,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-            ]}
-          >
-            <View style={styles.cardHeader}>
-              <Ionicons name="bus" size={32} color="#FF9500" />
-              <Text
-                style={[
-                  styles.cardTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
-                ]}
-              >
-                Campus Bus
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.cardDescription,
-                { color: isDark ? "#999999" : "#666666" },
-              ]}
-            >
-              Track university transport and schedules
-            </Text>
-            <View style={styles.cardAction}>
-              <Text style={styles.cardActionText}>Track Bus</Text>
-              <Ionicons name="arrow-forward" size={20} color="#FF9500" />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Safety Check-in Section */}
-        <View
-          style={[
-            styles.section,
-            { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
-          ]}
-        >
-          <View style={styles.settingItem}>
-            <View style={styles.settingInfo}>
-              <Ionicons name="shield-checkmark" size={24} color="#34C759" />
-              <View style={styles.settingText}>
-                <Text
-                  style={[
-                    styles.settingTitle,
-                    { color: isDark ? "#ffffff" : "#000000" },
-                  ]}
-                >
-                  Safety Check-ins
-                </Text>
-                <Text
-                  style={[
-                    styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
-                  ]}
-                >
-                  Periodic safety confirmations
-                </Text>
-              </View>
-            </View>
-            <View style={styles.switchContainer}>
-              <Switch
-                value={safetyCheckInEnabled}
-                onValueChange={setSafetyCheckInEnabled}
-                trackColor={{ false: "#767577", true: "#34C759" }}
-                thumbColor={safetyCheckInEnabled ? "#ffffff" : "#f4f3f4"}
-              />
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   // Invite/Waiting Screen
   if (currentScreen === "waiting") {
     return (
@@ -977,423 +749,3 @@ export default function SafetyScreen() {
 
   return null;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    marginBottom: 0, // Reduce bottom margin
-    paddingTop: 20,
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  cardsContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-    marginBottom: 24,
-  },
-  safetyCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-    gap: 12,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  cardDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  cardAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  cardActionText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
-  },
-  section: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    marginHorizontal: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  sectionDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  settingItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  switchContainer: {
-    flex: 1, // 1 part for the switch
-    alignItems: "flex-end", // push switch to right edge
-    justifyContent: "center",
-  },
-  settingInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  settingText: {
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  // Setup Screen Styles
-  setupHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  setupTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  setupContent: {
-    flex: 1,
-    paddingTop: 16,
-  },
-  locationInputs: {
-    gap: 16,
-    marginBottom: 20,
-  },
-  locationInput: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 12,
-    gap: 12,
-  },
-  locationInputContent: {
-    flex: 1,
-  },
-  locationLabel: {
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  locationValue: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  routeInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  routeInfoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  routeInfoText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  intervalPicker: {
-    marginBottom: 20,
-  },
-  intervalLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-  },
-  intervalOptions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  intervalOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-  },
-  intervalOptionText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  friendsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  friendChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    gap: 8,
-    minWidth: 120,
-  },
-  friendAvatar: {
-    fontSize: 20,
-  },
-  friendChipName: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  onlineIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  mapPreview: {
-    height: 200,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  mapPreviewMap: {
-    flex: 1,
-  },
-  startButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginBottom: 20,
-    gap: 12,
-  },
-  startButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  // Location Picker Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  locationPickerModal: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    maxHeight: "70%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  locationOptions: {
-    padding: 20,
-  },
-  locationSectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
-    marginTop: 20,
-  },
-  locationOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-    gap: 16,
-  },
-  locationOptionText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  // Waiting Screen Styles
-  waitingHeader: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-  },
-  waitingTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  waitingSubtitle: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  waitingContent: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-  },
-  inviteStatus: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  inviteStatusText: {
-    fontSize: 18,
-    textAlign: "center",
-    marginTop: 16,
-    lineHeight: 24,
-  },
-  shareSection: {
-    marginBottom: 40,
-  },
-  shareTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  shareButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 12,
-    marginBottom: 12,
-    gap: 12,
-  },
-  shareButtonText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#007AFF",
-  },
-  startWalkButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 12,
-  },
-  startWalkButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  // Active Walk Screen Styles
-  activeHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
-    backgroundColor: "#34C759",
-  },
-  activeHeaderText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  activeMapContainer: {
-    flex: 1,
-    margin: 20,
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-  activeMap: {
-    flex: 1,
-  },
-  activeControls: {
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  timerChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f8f8f8",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    gap: 8,
-  },
-  timerText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FF9500",
-  },
-  controlButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  controlButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 12,
-    gap: 8,
-  },
-  controlButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  headerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-});

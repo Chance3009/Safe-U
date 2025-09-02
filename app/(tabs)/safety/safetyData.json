@@ -1,0 +1,50 @@
+{
+  "friends": [
+    {
+      "id": "1",
+      "name": "Sarah Chen",
+      "avatar": "👩‍🦰",
+      "isOnline": true,
+      "isSelected": false
+    },
+    {
+      "id": "2",
+      "name": "Mike Johnson",
+      "avatar": "👨‍🦱",
+      "isOnline": true,
+      "isSelected": false
+    },
+    {
+      "id": "3",
+      "name": "Emma Davis",
+      "avatar": "👩‍🦳",
+      "isOnline": false,
+      "isSelected": false
+    },
+    {
+      "id": "4",
+      "name": "Alex Kim",
+      "avatar": "👨‍🦲",
+      "isOnline": true,
+      "isSelected": false
+    },
+    {
+      "id": "5",
+      "name": "Jordan Lee",
+      "avatar": "👩‍🦱",
+      "isOnline": false,
+      "isSelected": false
+    }
+  ],
+  "recentLocations": [
+    { "latitude": 37.78825, "longitude": -122.4324, "name": "Library" },
+    { "latitude": 37.78925, "longitude": -122.4334, "name": "Student Center" },
+    { "latitude": 37.78725, "longitude": -122.4314, "name": "Dorm Building A" },
+    { "latitude": 37.79025, "longitude": -122.4344, "name": "Science Building" }
+  ],
+  "safePoints": [
+    { "latitude": 37.78875, "longitude": -122.4329, "name": "Guard Post 1" },
+    { "latitude": 37.78975, "longitude": -122.4339, "name": "24hr Lab" },
+    { "latitude": 37.78775, "longitude": -122.4319, "name": "Well-lit Path" }
+  ]
+}

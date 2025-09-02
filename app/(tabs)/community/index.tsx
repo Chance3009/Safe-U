@@ -2,16 +2,31 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   ScrollView,
   Image,
   useColorScheme,
-  Alert,
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
+import styles from "../../../components/styles/communityStyles";
+import communityData from "./communityData.json";
+import {
+  formatNumber,
+  getEscalationStatusColor,
+  getEscalationStatusText,
+  getCategoryColor,
+  handleMakePost,
+  handleUpvote,
+  handleDownvote,
+  handleComment,
+  handleShare,
+  handleEscalation,
+  handleNavigateToAlerts,
+  filterPosts
+} from "../../../controllers/CommunityController";
 
 interface CommunityPost {
   id: string;
@@ -47,157 +62,40 @@ export default function CommunityScreen() {
 
   const isDark = useColorScheme() === "dark";
 
-  const [communityPosts] = useState<CommunityPost[]>([
-    {
-      id: "1",
-      author: "Muhd bin A",
-      content:
-        "PSA: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
-      image: "🌳",
-      upvotes: 12000,
-      downvotes: 0,
-      comments: 1000,
-      timestamp: "2 hours ago",
-      category: "PSA",
-      escalationStatus: "escalated",
-      escalationThreshold: 10000,
-      location: "Jalan Universiti, USM",
-      coordinates: { latitude: 5.4164, longitude: 100.3327 },
-    },
-    {
-      id: "2",
-      author: "Sarah Chen",
-      content:
-        "Heads up: The library entrance is slippery due to recent rain. Please be careful when entering.",
-      upvotes: 450,
-      downvotes: 12,
-      comments: 89,
-      timestamp: "4 hours ago",
-      category: "Safety",
-      escalationStatus: "pending",
-      escalationThreshold: 500,
-      location: "Library, USM",
-    },
-    {
-      id: "3",
-      author: "Mike Johnson",
-      content:
-        "The vending machine near Engineering Building is out of order. Maintenance has been notified.",
-      upvotes: 234,
-      downvotes: 5,
-      comments: 45,
-      timestamp: "6 hours ago",
-      category: "Facility",
-      escalationStatus: "none",
-      escalationThreshold: 1000,
-      location: "Engineering Building, USM",
-    },
-    {
-      id: "4",
-      author: "Aisha Rahman",
-      content:
-        "URGENT: Suspicious person loitering around the Science Building parking lot. Multiple students have reported feeling unsafe.",
-      upvotes: 890,
-      downvotes: 2,
-      comments: 156,
-      timestamp: "1 hour ago",
-      category: "Safety",
-      escalationStatus: "pending",
-      escalationThreshold: 500,
-      location: "Science Building Parking, USM",
-      coordinates: { latitude: 5.4164, longitude: 100.3327 },
-    },
-  ]);
+const [communityPosts] = useState<CommunityPost[]>(() => {
+  // Validate the data shape
+  try {
+    return Array.isArray(communityData.communityPosts) 
+      ? communityData.communityPosts.map(post => ({
+          id: post.id || '',
+          author: post.author || '',
+          content: post.content || '',
+          image: post.image,
+          upvotes: post.upvotes || 0,
+          downvotes: post.downvotes || 0,
+          comments: post.comments || 0,
+          timestamp: post.timestamp || '',
+          // Use type assertion for the specific union types
+          category: (post.category || 'General') as CommunityPost['category'],
+          escalationStatus: (post.escalationStatus || 'none') as CommunityPost['escalationStatus'],
+          escalationThreshold: post.escalationThreshold || 500,
+          location: post.location,
+          coordinates: post.coordinates
+        }))
+      : [];
+  } catch (err) {
+    console.error('Error parsing community data:', err);
+    return [];
+  }
+});
+  
+  // Use the filtering function from the controller
+  const filteredPosts = filterPosts(communityPosts, sortBy);
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K";
-    }
-    return num.toString();
+  // Wrap handleEscalation to use with component state
+  const handlePostEscalation = (post: CommunityPost) => {
+    handleEscalation(post, setSelectedPostForEscalation, setShowEscalationModal);
   };
-
-  const getEscalationStatusColor = (status: string) => {
-    switch (status) {
-      case "escalated":
-        return "#34C759";
-      case "pending":
-        return "#FF9500";
-      case "rejected":
-        return "#FF4444";
-      default:
-        return "transparent";
-    }
-  };
-
-  const getEscalationStatusText = (status: string) => {
-    switch (status) {
-      case "escalated":
-        return "Escalated ✓";
-      case "pending":
-        return "Under Review";
-      case "rejected":
-        return "Rejected";
-      default:
-        return "";
-    }
-  };
-
-  const handleMakePost = () => {
-    Alert.alert("Create Post", "Choose post type:", [
-      {
-        text: "Community Post",
-        onPress: () => console.log("Create community post"),
-      },
-      {
-        text: "Report to Authorities",
-        onPress: () => console.log("Create official report"),
-      },
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-    ]);
-  };
-
-  const handleUpvote = (postId: string) => {
-    // TODO: Implement upvote logic
-    console.log("Upvote post:", postId);
-  };
-
-  const handleDownvote = (postId: string) => {
-    // TODO: Implement downvote logic
-    console.log("Downvote post:", postId);
-  };
-
-  const handleComment = (postId: string) => {
-    // TODO: Implement comment system
-    console.log("Comment on post:", postId);
-  };
-
-  const handleShare = (postId: string) => {
-    // TODO: Implement share functionality
-    console.log("Share post:", postId);
-  };
-
-  const handleEscalation = (post: CommunityPost) => {
-    setSelectedPostForEscalation(post);
-    setShowEscalationModal(true);
-  };
-
-  const handleNavigateToAlerts = () => {
-    // TODO: Navigate to Alerts tab
-    console.log("Navigate to Alerts");
-  };
-
-  const filteredPosts = communityPosts.filter((post) => {
-    if (sortBy === "escalated") {
-      return (
-        post.escalationStatus === "escalated" ||
-        post.escalationStatus === "pending"
-      );
-    }
-    return true;
-  });
 
   if (selectedTab === "reports") {
     return (
@@ -245,7 +143,7 @@ export default function CommunityScreen() {
             <TouchableOpacity
               style={[
                 styles.sortButton,
-                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
               ]}
               onPress={() => setShowSortDropdown(!showSortDropdown)}
             >
@@ -279,7 +177,7 @@ export default function CommunityScreen() {
             <View
               style={[
                 styles.sortDropdown,
-                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
               ]}
             >
               {["recent", "popular", "urgent", "escalated"].map((option) => (
@@ -328,7 +226,7 @@ export default function CommunityScreen() {
         <View
           style={[
             styles.escalationInfo,
-            { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+            { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
           ]}
         >
           <Ionicons name="information-circle" size={20} color="#007AFF" />
@@ -546,7 +444,7 @@ export default function CommunityScreen() {
                         styles.escalationButton,
                         { backgroundColor: "#FF9500" },
                       ]}
-                      onPress={() => handleEscalation(post)}
+                      onPress={() => handlePostEscalation(post)}
                     >
                       <Ionicons
                         name="arrow-up-circle"
@@ -706,405 +604,3 @@ export default function CommunityScreen() {
     </View>
   );
 }
-
-const getCategoryColor = (category: string) => {
-  switch (category) {
-    case "PSA":
-      return "#FF9500";
-    case "Safety":
-      return "#FF4444";
-    case "Facility":
-      return "#007AFF";
-    case "Escalated":
-      return "#34C759";
-    default:
-      return "#34C759";
-  }
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-  },
-  actionBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  sortButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sortButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  makePostButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  makePostButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  sortDropdown: {
-    position: "absolute",
-    top: 120,
-    left: 16,
-    right: 16,
-    borderRadius: 12,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 1000,
-  },
-  sortOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  sortOptionText: {
-    fontSize: 16,
-  },
-  alertsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: 16,
-    marginBottom: 24,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  alertsButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    flex: 1,
-    marginLeft: 12,
-  },
-  escalationInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginBottom: 24,
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  escalationInfoText: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-  postsContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-  },
-  postCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  postHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  authorInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  headerRight: {
-    alignItems: "flex-end",
-    gap: 8,
-  },
-  authorAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  authorName: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  postTimestamp: {
-    fontSize: 12,
-  },
-  categoryBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  categoryText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  escalationBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  escalationBadgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-  postContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  postImageContainer: {
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  postImage: {
-    fontSize: 80,
-  },
-  locationInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 8,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  escalationProgress: {
-    marginBottom: 16,
-  },
-  escalationProgressText: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  postActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-    gap: 15,
-    flexWrap: "wrap",
-  },
-  voteContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  voteButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  voteCount: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  escalationButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    gap: 6,
-  },
-  escalationButtonText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  tabContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    gap: 8,
-  },
-  tabButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
-    backgroundColor: "#f0f0f0",
-  },
-  tabButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  tabContent: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
-  },
-  tabContentText: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-    padding: 20,
-  },
-  modalContent: {
-    margin: 20,
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  modalText: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  modalActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-
-    justifyContent: "center", // centers vertically
-  },
-  modalButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
-    flexWrap: "wrap",
-    textAlign: "center", // center text inside button
-    width: "100%", // make text stretch full width
-  },
-});
