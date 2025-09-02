@@ -85,7 +85,7 @@ export default function ReportScreen() {
       status: "open",
       date: "2024-01-15",
       description:
-        "I witnessed a suspicious person loitering around the library entrance around 3 PM today. They were acting strangely and made me feel uncomfortable.",
+        "I witnessed a suspicious person loitering around the library entrance around 3 PM today. He was acting strangely and made me feel uncomfortable.",
       images: [],
       videos: [],
       isAnonymous: false,
@@ -1035,7 +1035,7 @@ export default function ReportScreen() {
                 >
                   {selectedReport?.category}
                 </Text>
-
+                <View ></View>
                 <Text
                   style={[
                     styles.modalLabel,
@@ -1403,62 +1403,9 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 20,
   },
-  uploadedMediaContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  mediaScrollView: {
-    paddingVertical: 10,
-  },
-  mediaItem: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 10,
-    position: "relative",
-  },
-  mediaThumbnail: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  videoThumbnail: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
-  videoFileName: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 5,
-  },
-  removeMediaButton: {
-    position: "absolute",
-    top: 5,
-    right: 5,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  clearAllButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
-  },
-
   reportActions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    gap: 25,
     marginTop: 10,
   },
   reportActionButton: {
@@ -1558,6 +1505,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 15,
     gap: 5,
+    marginBottom: 10,
   },
   modalStatusText: {
     color: "white",
