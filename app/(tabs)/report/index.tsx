@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,10 +5,18 @@ import { useColorScheme } from '@/components/useColorScheme';
 import styles from '../../../components/styles/reportStyles';
 import reportData from './reportData.json';
 
+// Import controller functions
+import {
+    handleVoiceReport as handleVoiceReportController,
+    handleSubmitReport as handleSubmitReportController,
+    getStatusColor,
+    getStatusIcon
+} from '../../../controllers/ReportControllers';
+
 export default function ReportScreen() {
 
     const [isRecording, setIsRecording] = useState(false);
-    const [reportType, setReportType] = useState('security');
+    // const [reportType, setReportType] = useState('security'); "removed for now as its not being used"
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [reportTitle, setReportTitle] = useState('');
     const [reportDescription, setReportDescription] = useState('');
@@ -21,55 +28,21 @@ export default function ReportScreen() {
     const categories = reportData.categories || [];
     const reportStatuses = reportData.reportStatuses || [];
 
+    // Wrap controller for voice report to provide correct state
     const handleVoiceReport = () => {
-        if (isRecording) {
-            setIsRecording(false);
-            Alert.alert('Recording Stopped', 'Your voice report has been saved and will be processed.');
-        } else {
-            setIsRecording(true);
-            Alert.alert('Recording Started', 'Hold the button and speak your report. Release when done.');
-            // TODO: Implement actual voice recording
-            setTimeout(() => {
-                setIsRecording(false);
-                Alert.alert('Recording Complete', 'Your voice report has been processed and saved.');
-            }, 5000);
-        }
+        handleVoiceReportController(isRecording, setIsRecording);
     };
 
+    // Wrap controller for submit report to provide correct state
     const handleSubmitReport = () => {
-        if (!reportTitle || !reportDescription || !selectedCategory) {
-            Alert.alert('Missing Information', 'Please fill in all required fields.');
-            return;
-        }
-
-        Alert.alert(
-            'Report Submitted',
-            'Your report has been submitted successfully. Campus security will review it shortly.',
-            [{ text: 'OK' }]
-        );
-
-        // Reset form
-        setReportTitle('');
-        setReportDescription('');
-        setSelectedCategory('');
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'open': return '#FF4444';
-            case 'acknowledged': return '#FF9500';
-            case 'resolved': return '#34C759';
-            default: return '#666666';
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'open': return 'time';
-            case 'acknowledged': return 'checkmark-circle';
-            case 'resolved': return 'checkmark-done-circle';
-            default: return 'help-circle';
-        }
+        handleSubmitReportController({
+            reportTitle,
+            reportDescription,
+            selectedCategory,
+            setReportTitle,
+            setReportDescription,
+            setSelectedCategory
+        });
     };
 
     return (

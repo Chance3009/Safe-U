@@ -5,15 +5,19 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
-  Alert,
   TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
-
 import styles from "../../../components/styles/profileStyles";
-// Import the data from the JSON file
 import profileData from "./profileData.json";
+import {
+  handleEditProfile,
+  handleAddEmergencyContact,
+  handleRemoveEmergencyContact,
+  handleSettingPress,
+  handleLogout,
+} from "../../../controllers/profileController";
 
 export default function ProfileScreen() {
   const [locationSharing, setLocationSharing] = useState(true);
@@ -27,65 +31,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  // Use the imported data instead of hardcoded arrays
   const { emergencyContacts, appSettings } = profileData;
-
-  const handleEditProfile = () => {
-    if (isEditingProfile) {
-      // Save changes
-      Alert.alert(
-        "Profile Updated",
-        "Your profile has been updated successfully."
-      );
-    }
-    setIsEditingProfile(!isEditingProfile);
-  };
-
-  const handleAddEmergencyContact = () => {
-    Alert.alert(
-      "Add Emergency Contact",
-      "Enter the contact information for your new emergency contact."
-    );
-  };
-
-  const handleRemoveEmergencyContact = (contactId: string) => {
-    Alert.alert(
-      "Remove Contact",
-      "Are you sure you want to remove this emergency contact?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: () =>
-            Alert.alert(
-              "Contact Removed",
-              "Emergency contact has been removed."
-            ),
-        },
-      ]
-    );
-  };
-
-  const handleSettingPress = (setting: any) => {
-    Alert.alert(setting.title, setting.description);
-  };
-
-  const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout? You will need to sign in again to use SafeU.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: () =>
-            Alert.alert("Logged Out", "You have been successfully logged out."),
-        },
-      ]
-    );
-  };
 
   return (
     <ScrollView
@@ -184,7 +130,9 @@ export default function ProfileScreen() {
               styles.editProfileButton,
               { backgroundColor: isEditingProfile ? "#34C759" : "#007AFF" },
             ]}
-            onPress={handleEditProfile}
+            onPress={() =>
+              handleEditProfile(isEditingProfile, setIsEditingProfile)
+            }
           >
             <Ionicons
               name={isEditingProfile ? "checkmark" : "create"}
