@@ -3,7 +3,6 @@ import { Alert } from "react-native";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -11,12 +10,15 @@ import {
   useColorScheme,
   Modal,
   PanResponder,
+  ImageSourcePropType,
 } from "react-native";
+import styles from "../../../components/styles/communityStyles";
 import { Ionicons } from "@expo/vector-icons";
 
 import styles from "../../styles/communityStyles";
 import communityData from "./communityData.json";
-import {safetyCategoriesData }from "./SafetyCategory";
+import { eventsData } from "./eventsData.js";
+import { safetyCategoriesData } from "./SafetyCategory";
 
 interface CommentItem {
   id: string;
@@ -35,7 +37,13 @@ interface CommunityPost {
   comments: number;
   timestamp: string;
   category: "PSA" | "Safety" | "Facility" | "General" | "Escalated" | string;
-  escalationStatus: "pending" | "escalated" | "rejected" | "none" | "resolved" | string;
+  escalationStatus:
+    | "pending"
+    | "escalated"
+    | "rejected"
+    | "none"
+    | "resolved"
+    | string;
   escalationThreshold: number;
   location?: string;
   coordinates?: {
@@ -54,6 +62,16 @@ interface SafetyCategory {
   image: string;
 }
 
+interface Event {
+  id: string;
+  title: string;
+  image: ImageSourcePropType;
+  date: string;
+  time: string;
+  venue: string;
+  description: string;
+}
+
 import { useRouter } from "expo-router";
 import EventBus from "../../../utils/eventBus";
 
@@ -61,7 +79,7 @@ export default function CommunityScreen() {
   const router = useRouter();
   const currentUserName = "You";
   const [selectedTab, setSelectedTab] = useState<
-    "reports" | "safety-knowledge"
+    "reports" | "safety-knowledge" | "events"
   >("reports");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<
@@ -78,66 +96,10 @@ export default function CommunityScreen() {
 
   // Safety knowledge categories
   const safetyCategories: SafetyCategory[] = safetyCategoriesData;
-  // const safetyCategories: SafetyCategory[] = [
-  //   {
-  //     id: "harassment",
-  //     title: "Harassment Prevention",
-  //     description:
-  //       "Learn how to identify, prevent, and respond to harassment situations",
-  //     icon: "shield-checkmark",
-  //     color: "#FF4444",
-  //     image:
-  //       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "walking-alone",
-  //     title: "Walking Alone at Night",
-  //     description:
-  //       "Essential safety tips for walking alone, especially during nighttime",
-  //     icon: "moon",
-  //     color: "#FF9500",
-  //     image: require("../../../assets/images/walking-alone-hero.webp"),
-  //   },
-  //   {
-  //     id: "drowning",
-  //     title: "Water Safety & Drowning Prevention",
-  //     description:
-  //       "Stay safe around water with these crucial safety guidelines",
-  //     icon: "water",
-  //     color: "#007AFF",
-  //     image:
-  //       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "theft",
-  //     title: "Theft Prevention",
-  //     description:
-  //       "Protect yourself and your belongings from theft and pickpocketing",
-  //     icon: "lock-closed",
-  //     color: "#34C759",
-  //     image:
-  //       "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "cyber-safety",
-  //     title: "Cyber Safety",
-  //     description: "Stay safe online and protect your digital identity",
-  //     icon: "laptop",
-  //     color: "#AF52DE",
-  //     image: require("../../../assets/images/cyber-safety-hero.webp"),
-  //   },
-  //   {
-  //     id: "emergency",
-  //     title: "Emergency Response",
-  //     description:
-  //       "Know what to do in emergency situations and how to get help",
-  //     icon: "medical",
-  //     color: "#FF3B30",
-  //     image: require("../../../assets/images/emergency-response-hero.webp"),
-  //   },
-  // ];
 
-  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(communityData.communityPosts);
+  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(
+    communityData.communityPosts
+  );
 
   // Listen for new posts from the create-post screen
   React.useEffect(() => {
@@ -166,6 +128,10 @@ export default function CommunityScreen() {
   const [viewerStartIndex, setViewerStartIndex] = useState(0);
   const [deleteConfirmPost, setDeleteConfirmPost] =
     useState<CommunityPost | null>(null);
+
+  // Event modal state
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
 
   // Track current image index for each post's carousel
   const [postImageIndices, setPostImageIndices] = useState<
@@ -518,6 +484,11 @@ export default function CommunityScreen() {
                 key: "safety-knowledge",
                 label: "Safety Knowledge",
                 icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
               },
             ].map((tab) => (
               <TouchableOpacity
@@ -1410,11 +1381,15 @@ export default function CommunityScreen() {
           <View style={styles.tabContainer}>
             {[
               { key: "reports", label: "Reports", icon: "document-text" },
-
               {
                 key: "safety-knowledge",
                 label: "Safety Knowledge",
                 icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
               },
             ].map((tab) => (
               <TouchableOpacity
@@ -1566,6 +1541,301 @@ export default function CommunityScreen() {
             </View>
           </View>
         </View>
+      </ScrollView>
+    );
+  }
+
+  // Events Tab
+  if (selectedTab === "events") {
+    return (
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text
+            style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
+          >
+            Events
+          </Text>
+          <Text
+            style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
+          >
+            Discover upcoming safety and wellness events
+          </Text>
+
+          {/* Tab Navigation */}
+          <View style={styles.tabContainer}>
+            {[
+              { key: "reports", label: "Reports", icon: "document-text" },
+              {
+                key: "safety-knowledge",
+                label: "Safety Knowledge",
+                icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
+              },
+            ].map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[
+                  styles.tabButton,
+                  selectedTab === tab.key && { backgroundColor: "#007AFF" },
+                ]}
+                onPress={() => setSelectedTab(tab.key as any)}
+              >
+                <Ionicons
+                  name={tab.icon as any}
+                  size={20}
+                  color={
+                    selectedTab === tab.key
+                      ? "white"
+                      : isDark
+                      ? "#999999"
+                      : "#666666"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: selectedTab === tab.key ? "white" : "#666666" },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Events List */}
+        <View style={styles.eventsContainer}>
+          {eventsData.map((event) => (
+            <View
+              key={event.id}
+              style={[
+                styles.eventCard,
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
+              ]}
+            >
+              {/* Event Image */}
+              <Image
+                source={event.image}
+                style={styles.eventImage}
+                resizeMode="cover"
+              />
+
+              {/* Event Content */}
+              <View style={styles.eventContent}>
+                <Text
+                  style={[
+                    styles.eventTitle,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  {event.title}
+                </Text>
+
+                {/* Event Details */}
+                <View style={styles.eventDetails}>
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="calendar"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.date}
+                    </Text>
+                  </View>
+
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="time"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.time}
+                    </Text>
+                  </View>
+
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="location"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.venue}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* View More Button */}
+                <TouchableOpacity
+                  style={styles.viewMoreButton}
+                  onPress={() => {
+                    setSelectedEvent(event);
+                    setShowEventModal(true);
+                  }}
+                >
+                  <Text style={styles.viewMoreButtonText}>View more</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Event Detail Modal */}
+        <Modal
+          visible={showEventModal && !!selectedEvent}
+          transparent
+          animationType="fade"
+          onRequestClose={() => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.eventModalContent,
+                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+              ]}
+            >
+              {selectedEvent && (
+                <>
+                <View style={styles.modalHeader}>
+                <Text
+                    style={[
+                      styles.modalTitle,
+                      { color: isDark ? "#ffffff" : "#000000" },
+                    ]}
+                  >
+                    Event Details
+                  </Text>
+                  {/* Close Button */}
+                  <TouchableOpacity
+                    style={styles.closeModalButton}
+                    onPress={() => {
+                      setShowEventModal(false);
+                      setSelectedEvent(null);
+                    }}
+                  >
+                    <Ionicons
+                      name="close"
+                      size={24}
+                      color={isDark ? "#ffffff" : "#000000"}
+                    />
+                  </TouchableOpacity>
+                </View>
+                  
+
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Event Image */}
+                    <Image
+                      source={selectedEvent.image}
+                      style={styles.modalEventImage}
+                      resizeMode="cover"
+                    />
+
+                    {/* Event Title */}
+                    <Text
+                      style={[
+                        styles.modalEventTitle,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      {selectedEvent.title}
+                    </Text>
+
+                    {/* Event Details */}
+                    <View style={styles.modalEventDetails}>
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="calendar"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.date}
+                        </Text>
+                      </View>
+
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="time"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.time}
+                        </Text>
+                      </View>
+
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="location"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.venue}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Event Description */}
+                    <Text
+                      style={[
+                        styles.modalEventDescription,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      {selectedEvent.description}
+                    </Text>
+                  </ScrollView>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     );
   }

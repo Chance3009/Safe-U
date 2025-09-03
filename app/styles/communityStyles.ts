@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 50,
     paddingBottom: 16,
+    paddingBottom: 16,
     paddingHorizontal: 16,
   },
   title: {
@@ -43,10 +44,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   filterContainer: {
+    flexDirection: "column",
+    gap: 16,
+    marginBottom: 16,
+  },
+  filterContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     justifyContent: "space-between",
+  },
+  makePostContainer: {
   },
   makePostContainer: {
     alignItems: "center",
@@ -59,6 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 8,
     minWidth: 160,
+    minWidth: 160,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -70,11 +79,31 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   categoryFilterButton: {
+  categoryFilterButton: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
+    paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
+    gap: 8,
+    minWidth: 160,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  categoryFilterButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  makePostButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 24,
     gap: 8,
     minWidth: 160,
     shadowColor: "#000",
@@ -110,6 +139,7 @@ const styles = StyleSheet.create({
     top: 120,
     left: 16,
     width: 180,
+    width: 180,
     borderRadius: 12,
     padding: 8,
     shadowColor: "#000",
@@ -128,6 +158,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   sortOptionText: {
+    fontSize: 16,
+  },
+  categoryFilterDropdown: {
+    position: "absolute",
+    top: 120,
+    left: 200,
+    width: 180,
+    borderRadius: 12,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 1000,
+  },
+  categoryFilterOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  categoryFilterOptionText: {
     fontSize: 16,
   },
   categoryFilterDropdown: {
@@ -386,15 +441,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.9)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 1000,
   },
   fullScreenModalOverlay: {
     flex: 1,
@@ -415,8 +465,16 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 1,
     textAlign: "center",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   modalText: {
     fontSize: 16,
@@ -670,6 +728,108 @@ const styles = StyleSheet.create({
   backToReportsText: {
     fontSize: 14,
     fontWeight: "500",
+  },
+
+  // Event Styles
+  eventsContainer: {
+    paddingHorizontal: 16,
+    gap: 16,
+    marginBottom: 24,
+  },
+  eventCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  eventImage: {
+    width: "100%",
+    height: 200,
+  },
+  eventContent: {
+    padding: 16,
+    backgroundColor: "#E0FFE0",
+  },
+  eventTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  eventDetails: {
+    gap: 12,
+    marginBottom: 16,
+  },
+  eventDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  eventDetailText: {
+    fontSize: 14,
+    flex: 1,
+  },
+  viewMoreButton: {
+    alignSelf: "flex-end",
+  },
+  viewMoreButtonText: {
+    color: "#007AFF",
+    fontSize: 14,
+    fontWeight: "500",
+    textDecorationLine: "underline",
+  },
+
+  // Event Modal Styles
+  eventModalContent: {
+    margin: 20,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+    maxHeight: "80%",
+  },
+  closeModalButton: {
+    position: "absolute",
+    top: 6,
+    right: 8,
+    zIndex: 1,
+    padding: 8,
+  },
+  modalEventImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  modalEventTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  modalEventDetails: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  modalEventDetailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  modalEventDetailText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  modalEventDescription: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: "justify",
   },
 });
 

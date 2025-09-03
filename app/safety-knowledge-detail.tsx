@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   useColorScheme,
   Dimensions,
+  Linking,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import styles from "../components/styles/safety-knowledge-detailStyle";
 
 const { width } = Dimensions.get("window");
 
@@ -452,8 +455,29 @@ export default function SafetyKnowledgeDetailScreen() {
         <TouchableOpacity
           style={[styles.emergencyButton, { backgroundColor: "#FF3B30" }]}
           onPress={() => {
-            // In a real app, this would dial emergency numbers
-            console.log("Emergency button pressed");
+            Alert.alert(
+              "Emergency Contact",
+              "Choose an emergency number to call:",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "Call 911",
+                  onPress: () => {
+                    Linking.openURL("tel:911");
+                  },
+                },
+                {
+                  text: "Call Campus Security",
+                  onPress: () => {
+                    const campusSecurityNumber = "+60 122181660"; // Replace with actual number
+                    Linking.openURL(`tel:${campusSecurityNumber}`);
+                  },
+                },
+              ]
+            );
           }}
         >
           <Ionicons name="call" size={20} color="white" />
@@ -463,162 +487,3 @@ export default function SafetyKnowledgeDetailScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 30,
-    paddingHorizontal: 16,
-    paddingBottom: 26,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    flex: 1,
-  },
-  heroImage: {
-    width: "100%",
-    height: 200,
-  },
-  categoryIcon: {
-    position: "absolute",
-    top: 220,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  descriptionContainer: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: "center",
-  },
-  keyPointsContainer: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  keyPoint: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  keyPointIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  keyPointNumber: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  keyPointText: {
-    fontSize: 16,
-    lineHeight: 22,
-    flex: 1,
-  },
-  detailedContentContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-    marginBottom: 24,
-  },
-  sectionCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sectionImage: {
-    width: "100%",
-    height: 150,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  sectionContent: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  ctaContainer: {
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  ctaTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  ctaText: {
-    fontSize: 16,
-    lineHeight: 22,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  emergencyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 24,
-    gap: 8,
-  },
-  emergencyButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  errorText: {
-    fontSize: 18,
-    textAlign: "center",
-    marginTop: 100,
-  },
-});

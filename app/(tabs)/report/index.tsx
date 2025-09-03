@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
+import styles from "../../../components/styles/reportStyles";
 import * as ImagePicker from "expo-image-picker";
 import styles from "../../styles/reportStyles";
 

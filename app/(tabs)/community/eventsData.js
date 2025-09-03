@@ -1,0 +1,52 @@
+export const eventsData = [
+  {
+    id: "1",
+    title: "Mental Health Awareness Workshop",
+    image: require("../../../assets/images/event1.webp"),
+    date: "19/1/2025",
+    time: "10:00 a.m. to 1:00 p.m.",
+    venue: "Pantai Hospital Conference Hall",
+    description:
+      "Join us for an informative workshop on mental health awareness. Learn practical strategies for maintaining good mental health, recognizing signs of stress and anxiety, and supporting others who may be struggling. This workshop will include interactive sessions, expert presentations, and resources for ongoing support.",
+  },
+  {
+    id: "2",
+    title: "Stress Relief and Wellness Day",
+    image: require("../../../assets/images/event2.webp"),
+    date: "20/1/2025",
+    time: "10:00 a.m. to 5:00 p.m.",
+    venue: "George Town Library and Cultural Center",
+    description:
+      "A full day dedicated to stress relief and wellness practices. Experience various relaxation techniques including yoga, meditation, breathing exercises, and mindfulness workshops. Learn how to manage daily stress and develop healthy coping mechanisms for better mental and physical well-being.",
+  },
+  {
+    id: "3",
+    title: "Campus Safety Awareness Seminar",
+    image: require("../../../assets/images/event3.webp"),
+    date: "22/1/2025",
+    time: "2:00 p.m. to 4:00 p.m.",
+    venue: "University Main Auditorium",
+    description:
+      "Essential safety information for all students and staff. Learn about emergency procedures, campus security measures, and personal safety tips. This seminar will cover everything from basic safety protocols to advanced security awareness.",
+  },
+  {
+    id: "4",
+    title: "Digital Wellness Workshop",
+    image: require("../../../assets/images/event4.webp"),
+    date: "25/1/2025",
+    time: "11:00 a.m. to 2:00 p.m.",
+    venue: "Computer Science Building",
+    description:
+      "Learn about maintaining a healthy relationship with technology. Topics include digital detox strategies, managing screen time, online privacy, and cybersecurity best practices. Perfect for students who spend significant time online.",
+  },
+  {
+    id: "5",
+    title: "Community Building Meetup",
+    image: require("../../../assets/images/event5.webp"),
+    date: "28/1/2025",
+    time: "6:00 p.m. to 8:00 p.m.",
+    venue: "Student Center Lounge",
+    description:
+      "Connect with fellow students and build meaningful relationships. This casual meetup focuses on creating a supportive community where everyone feels welcome and valued. Activities include ice breakers, group discussions, and team building exercises.",
+  },
+];
