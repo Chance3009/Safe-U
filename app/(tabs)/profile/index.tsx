@@ -6,6 +6,8 @@ import {
   ScrollView,
   Switch,
   TextInput,
+  Linking,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
@@ -351,7 +353,27 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.contactActions}>
-                <TouchableOpacity style={styles.contactActionButton}>
+                <TouchableOpacity
+                  style={styles.contactActionButton}
+                  onPress={() => {
+                    Alert.alert(
+                      `Call ${contact.name}`,
+                      `Do you want to call ${contact.name}?`,
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
+                        },
+                        {
+                          text: "Call",
+                          onPress: () => {
+                            Linking.openURL(`tel:${contact.phone}`);
+                          },
+                        },
+                      ]
+                    );
+                  }}
+                >
                   <Ionicons name="call" size={20} color="#34C759" />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -422,4 +444,3 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
-
