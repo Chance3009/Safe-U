@@ -3,7 +3,6 @@ import { Alert } from "react-native";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -11,10 +10,13 @@ import {
   useColorScheme,
   Modal,
   PanResponder,
+  ImageSourcePropType,
 } from "react-native";
+import styles from "../../../components/styles/communityStyles";
 import { Ionicons } from "@expo/vector-icons";
 import communityData from "./communityData.json";
-import {safetyCategoriesData }from "./SafetyCategory";
+import { eventsData } from "./eventsData.js";
+import { safetyCategoriesData } from "./SafetyCategory";
 
 interface CommentItem {
   id: string;
@@ -33,7 +35,13 @@ interface CommunityPost {
   comments: number;
   timestamp: string;
   category: "PSA" | "Safety" | "Facility" | "General" | "Escalated" | string;
-  escalationStatus: "pending" | "escalated" | "rejected" | "none" | "resolved" | string;
+  escalationStatus:
+    | "pending"
+    | "escalated"
+    | "rejected"
+    | "none"
+    | "resolved"
+    | string;
   escalationThreshold: number;
   location?: string;
   coordinates?: {
@@ -52,6 +60,16 @@ interface SafetyCategory {
   image: string;
 }
 
+interface Event {
+  id: string;
+  title: string;
+  image: ImageSourcePropType;
+  date: string;
+  time: string;
+  venue: string;
+  description: string;
+}
+
 import { useRouter } from "expo-router";
 import EventBus from "../../../utils/eventBus";
 
@@ -59,7 +77,7 @@ export default function CommunityScreen() {
   const router = useRouter();
   const currentUserName = "You";
   const [selectedTab, setSelectedTab] = useState<
-    "reports" | "safety-knowledge"
+    "reports" | "safety-knowledge" | "events"
   >("reports");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<
@@ -76,66 +94,10 @@ export default function CommunityScreen() {
 
   // Safety knowledge categories
   const safetyCategories: SafetyCategory[] = safetyCategoriesData;
-  // const safetyCategories: SafetyCategory[] = [
-  //   {
-  //     id: "harassment",
-  //     title: "Harassment Prevention",
-  //     description:
-  //       "Learn how to identify, prevent, and respond to harassment situations",
-  //     icon: "shield-checkmark",
-  //     color: "#FF4444",
-  //     image:
-  //       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "walking-alone",
-  //     title: "Walking Alone at Night",
-  //     description:
-  //       "Essential safety tips for walking alone, especially during nighttime",
-  //     icon: "moon",
-  //     color: "#FF9500",
-  //     image: require("../../../assets/images/walking-alone-hero.webp"),
-  //   },
-  //   {
-  //     id: "drowning",
-  //     title: "Water Safety & Drowning Prevention",
-  //     description:
-  //       "Stay safe around water with these crucial safety guidelines",
-  //     icon: "water",
-  //     color: "#007AFF",
-  //     image:
-  //       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "theft",
-  //     title: "Theft Prevention",
-  //     description:
-  //       "Protect yourself and your belongings from theft and pickpocketing",
-  //     icon: "lock-closed",
-  //     color: "#34C759",
-  //     image:
-  //       "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-  //   },
-  //   {
-  //     id: "cyber-safety",
-  //     title: "Cyber Safety",
-  //     description: "Stay safe online and protect your digital identity",
-  //     icon: "laptop",
-  //     color: "#AF52DE",
-  //     image: require("../../../assets/images/cyber-safety-hero.webp"),
-  //   },
-  //   {
-  //     id: "emergency",
-  //     title: "Emergency Response",
-  //     description:
-  //       "Know what to do in emergency situations and how to get help",
-  //     icon: "medical",
-  //     color: "#FF3B30",
-  //     image: require("../../../assets/images/emergency-response-hero.webp"),
-  //   },
-  // ];
 
-  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(communityData.communityPosts);
+  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(
+    communityData.communityPosts
+  );
 
   // Listen for new posts from the create-post screen
   React.useEffect(() => {
@@ -164,6 +126,10 @@ export default function CommunityScreen() {
   const [viewerStartIndex, setViewerStartIndex] = useState(0);
   const [deleteConfirmPost, setDeleteConfirmPost] =
     useState<CommunityPost | null>(null);
+
+  // Event modal state
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
 
   // Track current image index for each post's carousel
   const [postImageIndices, setPostImageIndices] = useState<
@@ -516,6 +482,11 @@ export default function CommunityScreen() {
                 key: "safety-knowledge",
                 label: "Safety Knowledge",
                 icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
               },
             ].map((tab) => (
               <TouchableOpacity
@@ -1408,11 +1379,15 @@ export default function CommunityScreen() {
           <View style={styles.tabContainer}>
             {[
               { key: "reports", label: "Reports", icon: "document-text" },
-
               {
                 key: "safety-knowledge",
                 label: "Safety Knowledge",
                 icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
               },
             ].map((tab) => (
               <TouchableOpacity
@@ -1567,6 +1542,301 @@ export default function CommunityScreen() {
       </ScrollView>
     );
   }
+
+  // Events Tab
+  if (selectedTab === "events") {
+    return (
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text
+            style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
+          >
+            Events
+          </Text>
+          <Text
+            style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
+          >
+            Discover upcoming safety and wellness events
+          </Text>
+
+          {/* Tab Navigation */}
+          <View style={styles.tabContainer}>
+            {[
+              { key: "reports", label: "Reports", icon: "document-text" },
+              {
+                key: "safety-knowledge",
+                label: "Safety Knowledge",
+                icon: "information-circle",
+              },
+              {
+                key: "events",
+                label: "Events",
+                icon: "calendar",
+              },
+            ].map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[
+                  styles.tabButton,
+                  selectedTab === tab.key && { backgroundColor: "#007AFF" },
+                ]}
+                onPress={() => setSelectedTab(tab.key as any)}
+              >
+                <Ionicons
+                  name={tab.icon as any}
+                  size={20}
+                  color={
+                    selectedTab === tab.key
+                      ? "white"
+                      : isDark
+                      ? "#999999"
+                      : "#666666"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: selectedTab === tab.key ? "white" : "#666666" },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Events List */}
+        <View style={styles.eventsContainer}>
+          {eventsData.map((event) => (
+            <View
+              key={event.id}
+              style={[
+                styles.eventCard,
+                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
+              ]}
+            >
+              {/* Event Image */}
+              <Image
+                source={event.image}
+                style={styles.eventImage}
+                resizeMode="cover"
+              />
+
+              {/* Event Content */}
+              <View style={styles.eventContent}>
+                <Text
+                  style={[
+                    styles.eventTitle,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  {event.title}
+                </Text>
+
+                {/* Event Details */}
+                <View style={styles.eventDetails}>
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="calendar"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.date}
+                    </Text>
+                  </View>
+
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="time"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.time}
+                    </Text>
+                  </View>
+
+                  <View style={styles.eventDetailRow}>
+                    <Ionicons
+                      name="location"
+                      size={16}
+                      color={isDark ? "#999999" : "#666666"}
+                    />
+                    <Text
+                      style={[
+                        styles.eventDetailText,
+                        { color: isDark ? "#999999" : "#666666" },
+                      ]}
+                    >
+                      {event.venue}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* View More Button */}
+                <TouchableOpacity
+                  style={styles.viewMoreButton}
+                  onPress={() => {
+                    setSelectedEvent(event);
+                    setShowEventModal(true);
+                  }}
+                >
+                  <Text style={styles.viewMoreButtonText}>View more</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Event Detail Modal */}
+        <Modal
+          visible={showEventModal && !!selectedEvent}
+          transparent
+          animationType="fade"
+          onRequestClose={() => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.eventModalContent,
+                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+              ]}
+            >
+              {selectedEvent && (
+                <>
+                <View style={styles.modalHeader}>
+                <Text
+                    style={[
+                      styles.modalTitle,
+                      { color: isDark ? "#ffffff" : "#000000" },
+                    ]}
+                  >
+                    Event Details
+                  </Text>
+                  {/* Close Button */}
+                  <TouchableOpacity
+                    style={styles.closeModalButton}
+                    onPress={() => {
+                      setShowEventModal(false);
+                      setSelectedEvent(null);
+                    }}
+                  >
+                    <Ionicons
+                      name="close"
+                      size={24}
+                      color={isDark ? "#ffffff" : "#000000"}
+                    />
+                  </TouchableOpacity>
+                </View>
+                  
+
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Event Image */}
+                    <Image
+                      source={selectedEvent.image}
+                      style={styles.modalEventImage}
+                      resizeMode="cover"
+                    />
+
+                    {/* Event Title */}
+                    <Text
+                      style={[
+                        styles.modalEventTitle,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      {selectedEvent.title}
+                    </Text>
+
+                    {/* Event Details */}
+                    <View style={styles.modalEventDetails}>
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="calendar"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.date}
+                        </Text>
+                      </View>
+
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="time"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.time}
+                        </Text>
+                      </View>
+
+                      <View style={styles.modalEventDetailRow}>
+                        <Ionicons
+                          name="location"
+                          size={18}
+                          color={isDark ? "#999999" : "#666666"}
+                        />
+                        <Text
+                          style={[
+                            styles.modalEventDetailText,
+                            { color: isDark ? "#999999" : "#666666" },
+                          ]}
+                        >
+                          {selectedEvent.venue}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Event Description */}
+                    <Text
+                      style={[
+                        styles.modalEventDescription,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      {selectedEvent.description}
+                    </Text>
+                  </ScrollView>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    );
+  }
 }
 
 const getCategoryColor = (category: string) => {
@@ -1583,676 +1853,3 @@ const getCategoryColor = (category: string) => {
       return "#34C759";
   }
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 16,
-  },
-  actionBar: {
-    flexDirection: "column",
-    gap: 16,
-    marginBottom: 16,
-  },
-  filterContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    justifyContent: "space-between",
-  },
-  makePostContainer: {
-    alignItems: "center",
-  },
-  sortButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
-    minWidth: 160,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  sortButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  categoryFilterButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 20,
-    gap: 8,
-    minWidth: 160,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  categoryFilterButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  makePostButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 24,
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  makePostButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  sortDropdown: {
-    position: "absolute",
-    top: 120,
-    left: 16,
-    width: 180,
-    borderRadius: 12,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 1000,
-  },
-  sortOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  sortOptionText: {
-    fontSize: 16,
-  },
-  categoryFilterDropdown: {
-    position: "absolute",
-    top: 120,
-    left: 200,
-    width: 180,
-    borderRadius: 12,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 1000,
-  },
-  categoryFilterOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  categoryFilterOptionText: {
-    fontSize: 16,
-  },
-  alertsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: 16,
-    marginBottom: 24,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  alertsButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    flex: 1,
-    marginLeft: 12,
-  },
-  escalationInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginBottom: 24,
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  escalationInfoText: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-  postsContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-  },
-  postCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  postHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  authorInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  headerRight: {
-    alignItems: "flex-end",
-    gap: 8,
-  },
-  authorAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  authorName: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  postTimestamp: {
-    fontSize: 12,
-  },
-  categoryBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  categoryText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  escalationBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  escalationBadgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-  postContent: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  postImageContainer: {
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  postImage: {
-    fontSize: 80,
-  },
-  locationInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 8,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  escalationProgress: {
-    marginBottom: 16,
-  },
-  escalationProgressText: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  postActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-    gap: 15,
-    flexWrap: "wrap",
-  },
-  voteContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  voteButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  voteCount: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  escalationButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    gap: 6,
-  },
-  escalationButtonText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  tabContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  tabButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 20,
-    gap: 6,
-    backgroundColor: "#f0f0f0",
-    marginBottom: 8,
-  },
-  tabButtonText: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  tabContent: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
-  },
-  tabContentText: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  },
-  fullScreenModalOverlay: {
-    flex: 1,
-    backgroundColor: "#000000",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    margin: 20,
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  modalText: {
-    fontSize: 16,
-    lineHeight: 22,
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  modalActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-
-    justifyContent: "center", // centers vertically
-  },
-  modalButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
-    flexWrap: "wrap",
-    textAlign: "center", // center text inside button
-    width: "100%", // make text stretch full width
-  },
-  modalButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButtonCancel: {
-    backgroundColor: "#999999",
-  },
-  modalButtonDelete: {
-    backgroundColor: "#FF3B30",
-  },
-
-  navArrow: {
-    position: "absolute",
-    top: "50%",
-    padding: 20,
-    zIndex: 10,
-  },
-  navArrowLeft: {
-    left: 10,
-  },
-  navArrowRight: {
-    right: 10,
-  },
-  imageCounter: {
-    position: "absolute",
-    bottom: 10,
-    left: "50%",
-    transform: [{ translateX: -50 }],
-    backgroundColor: "rgba(0,0,0,0.5)",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  imageCounterText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-    padding: 10,
-    zIndex: 10,
-  },
-  fullScreenImageContainer: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  fullScreenImage: {
-    width: "100%",
-    height: "100%",
-    maxWidth: "100%",
-    maxHeight: "100%",
-  },
-  thumbnailStrip: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 10,
-    gap: 8,
-  },
-  thumbnail: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  thumbnailActive: {
-    borderColor: "#007AFF",
-  },
-  thumbnailImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  imageViewerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#000000",
-    width: "100%",
-    height: "100%",
-  },
-  imageCarousel: {
-    width: "100%",
-    aspectRatio: 1.5,
-    borderRadius: 12,
-    overflow: "hidden",
-    position: "relative",
-  },
-  mainImage: {
-    width: "100%",
-    height: "100%",
-  },
-  carouselArrow: {
-    position: "absolute",
-    top: "50%",
-    transform: [{ translateY: -20 }],
-    backgroundColor: "rgba(0,0,0,0.5)",
-    borderRadius: 20,
-    padding: 8,
-    zIndex: 10,
-  },
-  carouselArrowLeft: {
-    left: 10,
-  },
-  carouselArrowRight: {
-    right: 10,
-  },
-  carouselCounter: {
-    position: "absolute",
-    bottom: 10,
-    left: "50%",
-    transform: [{ translateX: -50 }],
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  carouselCounterText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  // Safety Knowledge Styles
-  safetyCategoriesContainer: {
-    paddingHorizontal: 16,
-    gap: 16,
-    marginBottom: 24,
-  },
-  safetyCategoryCard: {
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  categoryImage: {
-    width: "100%",
-    height: 120,
-  },
-  categoryContent: {
-    padding: 16,
-    position: "relative",
-  },
-  categoryIcon: {
-    position: "absolute",
-    top: -20,
-    right: 16,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-    marginRight: 60,
-  },
-  categoryDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-    marginRight: 40,
-  },
-  categoryArrow: {
-    position: "absolute",
-    bottom: 16,
-    right: 16,
-  },
-  quickTipsContainer: {
-    marginHorizontal: 16,
-    marginBottom: 24,
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  quickTipsTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  quickTipsList: {
-    gap: 12,
-  },
-  quickTip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  quickTipText: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-  // Back Button Styles
-  backToReportsButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginBottom: 16,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 122, 255, 0.1)",
-    gap: 6,
-  },
-  backToReportsText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-});
