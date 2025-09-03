@@ -13,6 +13,8 @@ import {
   PanResponder,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import communityData from "./communityData.json";
+import {safetyCategoriesData }from "./SafetyCategory";
 
 interface CommentItem {
   id: string;
@@ -30,8 +32,8 @@ interface CommunityPost {
   downvotes: number;
   comments: number;
   timestamp: string;
-  category: "PSA" | "Safety" | "Facility" | "General" | "Escalated";
-  escalationStatus: "pending" | "escalated" | "rejected" | "none" | "resolved";
+  category: "PSA" | "Safety" | "Facility" | "General" | "Escalated" | string;
+  escalationStatus: "pending" | "escalated" | "rejected" | "none" | "resolved" | string;
   escalationThreshold: number;
   location?: string;
   coordinates?: {
@@ -73,140 +75,67 @@ export default function CommunityScreen() {
   const isDark = useColorScheme() === "dark";
 
   // Safety knowledge categories
-  const safetyCategories: SafetyCategory[] = [
-    {
-      id: "harassment",
-      title: "Harassment Prevention",
-      description:
-        "Learn how to identify, prevent, and respond to harassment situations",
-      icon: "shield-checkmark",
-      color: "#FF4444",
-      image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
-    },
-    {
-      id: "walking-alone",
-      title: "Walking Alone at Night",
-      description:
-        "Essential safety tips for walking alone, especially during nighttime",
-      icon: "moon",
-      color: "#FF9500",
-      image: require("../../../assets/images/walking-alone-hero.webp"),
-    },
-    {
-      id: "drowning",
-      title: "Water Safety & Drowning Prevention",
-      description:
-        "Stay safe around water with these crucial safety guidelines",
-      icon: "water",
-      color: "#007AFF",
-      image:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-    },
-    {
-      id: "theft",
-      title: "Theft Prevention",
-      description:
-        "Protect yourself and your belongings from theft and pickpocketing",
-      icon: "lock-closed",
-      color: "#34C759",
-      image:
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    },
-    {
-      id: "cyber-safety",
-      title: "Cyber Safety",
-      description: "Stay safe online and protect your digital identity",
-      icon: "laptop",
-      color: "#AF52DE",
-      image: require("../../../assets/images/cyber-safety-hero.webp"),
-    },
-    {
-      id: "emergency",
-      title: "Emergency Response",
-      description:
-        "Know what to do in emergency situations and how to get help",
-      icon: "medical",
-      color: "#FF3B30",
-      image: require("../../../assets/images/emergency-response-hero.webp"),
-    },
-  ];
+  const safetyCategories: SafetyCategory[] = safetyCategoriesData;
+  // const safetyCategories: SafetyCategory[] = [
+  //   {
+  //     id: "harassment",
+  //     title: "Harassment Prevention",
+  //     description:
+  //       "Learn how to identify, prevent, and respond to harassment situations",
+  //     icon: "shield-checkmark",
+  //     color: "#FF4444",
+  //     image:
+  //       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
+  //   },
+  //   {
+  //     id: "walking-alone",
+  //     title: "Walking Alone at Night",
+  //     description:
+  //       "Essential safety tips for walking alone, especially during nighttime",
+  //     icon: "moon",
+  //     color: "#FF9500",
+  //     image: require("../../../assets/images/walking-alone-hero.webp"),
+  //   },
+  //   {
+  //     id: "drowning",
+  //     title: "Water Safety & Drowning Prevention",
+  //     description:
+  //       "Stay safe around water with these crucial safety guidelines",
+  //     icon: "water",
+  //     color: "#007AFF",
+  //     image:
+  //       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+  //   },
+  //   {
+  //     id: "theft",
+  //     title: "Theft Prevention",
+  //     description:
+  //       "Protect yourself and your belongings from theft and pickpocketing",
+  //     icon: "lock-closed",
+  //     color: "#34C759",
+  //     image:
+  //       "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+  //   },
+  //   {
+  //     id: "cyber-safety",
+  //     title: "Cyber Safety",
+  //     description: "Stay safe online and protect your digital identity",
+  //     icon: "laptop",
+  //     color: "#AF52DE",
+  //     image: require("../../../assets/images/cyber-safety-hero.webp"),
+  //   },
+  //   {
+  //     id: "emergency",
+  //     title: "Emergency Response",
+  //     description:
+  //       "Know what to do in emergency situations and how to get help",
+  //     icon: "medical",
+  //     color: "#FF3B30",
+  //     image: require("../../../assets/images/emergency-response-hero.webp"),
+  //   },
+  // ];
 
-  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([
-    {
-      id: "1",
-      author: "Muhd bin A",
-      content:
-        "PSA: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
-      images: [],
-      upvotes: 12000,
-      downvotes: 0,
-      comments: 1000,
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-      category: "PSA",
-      escalationStatus: "escalated",
-      escalationThreshold: 10000,
-      location: "Jalan Universiti, USM",
-      coordinates: { latitude: 5.4164, longitude: 100.3327 },
-    },
-    {
-      id: "2",
-      author: "Sarah Chen",
-      content:
-        "Heads up: The library entrance is slippery due to recent rain. Please be careful when entering.",
-      upvotes: 450,
-      downvotes: 12,
-      comments: 89,
-      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-      category: "Safety",
-      escalationStatus: "pending",
-      escalationThreshold: 500,
-      location: "Library, USM",
-    },
-    {
-      id: "3",
-      author: "Mike Johnson",
-      content:
-        "The vending machine near Engineering Building is out of order. Maintenance has been notified.",
-      upvotes: 234,
-      downvotes: 5,
-      comments: 45,
-      timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
-      category: "Facility",
-      escalationStatus: "none",
-      escalationThreshold: 1000,
-      location: "Engineering Building, USM",
-    },
-    {
-      id: "4",
-      author: "Aisha Rahman",
-      content:
-        "URGENT: Suspicious person loitering around the Science Building parking lot. Multiple students have reported feeling unsafe.",
-      upvotes: 890,
-      downvotes: 2,
-      comments: 156,
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-      category: "Safety",
-      escalationStatus: "pending",
-      escalationThreshold: 500,
-      location: "Science Building Parking, USM",
-      coordinates: { latitude: 5.4164, longitude: 100.3327 },
-    },
-    {
-      id: "5",
-      author: "David Lee",
-      content:
-        "The cafeteria has been cleaned and sanitized. All safety protocols are now in place.",
-      upvotes: 156,
-      downvotes: 3,
-      comments: 23,
-      timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days ago
-      category: "General",
-      escalationStatus: "resolved",
-      escalationThreshold: 1000,
-      location: "Cafeteria, USM",
-    },
-  ]);
+  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(communityData.communityPosts);
 
   // Listen for new posts from the create-post screen
   React.useEffect(() => {
@@ -1537,8 +1466,8 @@ export default function CommunityScreen() {
               <Image
                 source={
                   typeof category.image === "string"
-                    ? { uri: category.image } // remote https
-                    : category.image // local require()
+                    ? { uri: category.image } // remote
+                    : category.image // local
                 }
                 style={styles.categoryImage}
                 resizeMode="cover"
