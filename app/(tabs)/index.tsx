@@ -12,7 +12,6 @@ import {
   Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import MapView, { Marker, Polyline } from "react-native-maps";
 
 import styles from "../../components/styles/indexStyles";
 import indexData from "./indexData.json";
@@ -282,33 +281,15 @@ export default function SOSScreen() {
       {/* Map View when SOS is active - Adjusted position */}
       {isEmergencyActive && (
         <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            {/* User location marker */}
-            <Marker
-              coordinate={userLocation}
-              title="Your Location"
-              description="SOS Active"
-              pinColor="#FF0000"
-            />
-
-            {/* Location history breadcrumbs */}
-            {locationHistory.length > 1 && (
-              <Polyline
-                coordinates={locationHistory}
-                strokeColor="#FF0000"
-                strokeWidth={3}
-                lineDashPattern={[5, 5]}
-              />
-            )}
-          </MapView>
+          <View style={styles.map}>
+            <Text style={styles.mapText}>
+              Location: {userLocation.latitude.toFixed(4)},{" "}
+              {userLocation.longitude.toFixed(4)}
+            </Text>
+            <Text style={styles.mapText}>
+              Timestamp: {userLocation.timestamp.toLocaleTimeString()}
+            </Text>
+          </View>
         </View>
       )}
 

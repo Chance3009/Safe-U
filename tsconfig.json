@@ -10,8 +10,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-  },
-  "include": [
+  },  "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",

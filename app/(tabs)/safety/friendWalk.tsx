@@ -9,7 +9,6 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import MapView, { Marker, Polyline } from "react-native-maps";
 import { useRouter } from "expo-router";
 
 import profileData from "./safetyData.json";
@@ -29,7 +28,9 @@ interface Location {
 }
 
 export default function FriendWalkScreen() {
-  const [currentScreen, setCurrentScreen] = useState<"setup" | "waiting" | "active">("setup");
+  const [currentScreen, setCurrentScreen] = useState<
+    "setup" | "waiting" | "active"
+  >("setup");
   const router = useRouter();
   const [fromLocation, setFromLocation] = useState<Location>({
     latitude: 37.78825,
@@ -47,7 +48,9 @@ export default function FriendWalkScreen() {
   const [checkInInterval, setCheckInInterval] = useState(5);
   const [nextCheckIn, setNextCheckIn] = useState(300); // 5 minutes in seconds
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [locationPickerType, setLocationPickerType] = useState<"from" | "to">("from");
+  const [locationPickerType, setLocationPickerType] = useState<"from" | "to">(
+    "from"
+  );
   const [routeCoordinates, setRouteCoordinates] = useState<Location[]>([]);
 
   const isDark = useColorScheme() === "dark";
@@ -68,9 +71,9 @@ export default function FriendWalkScreen() {
             Alert.alert(
               "Missed Check-in",
               "Alert sent to " +
-              selectedFriends
-                .map((id) => friends.find((f) => f.id === id)?.name)
-                .join(", "),
+                selectedFriends
+                  .map((id) => friends.find((f) => f.id === id)?.name)
+                  .join(", "),
               [
                 {
                   text: "Check-in Now",
@@ -170,7 +173,7 @@ export default function FriendWalkScreen() {
     // Simple ETA calculation (demo)
     const distance = Math.sqrt(
       Math.pow(toLocation.latitude - fromLocation.latitude, 2) +
-      Math.pow(toLocation.longitude - fromLocation.longitude, 2)
+        Math.pow(toLocation.longitude - fromLocation.longitude, 2)
     );
     return Math.round(distance * 1000) + " min";
   };
@@ -192,10 +195,12 @@ export default function FriendWalkScreen() {
           { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
         ]}
       >
-        <View style={[
-          styles.setupHeader,
-          { backgroundColor: isDark ? "#000000" : "#f5f5f5" }
-        ]}>
+        <View
+          style={[
+            styles.setupHeader,
+            { backgroundColor: isDark ? "#000000" : "#f5f5f5" },
+          ]}
+        >
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -295,8 +300,7 @@ export default function FriendWalkScreen() {
                   style={[
                     styles.routeInfoText,
                     {
-                      color:
-                        isDark ? "#ffffff" : "#000000"
+                      color: isDark ? "#ffffff" : "#000000",
                     },
                   ]}
                 >
@@ -337,8 +341,8 @@ export default function FriendWalkScreen() {
                           checkInInterval === interval
                             ? "#007AFF"
                             : isDark
-                              ? "#333333"
-                              : "#f0f0f0",
+                            ? "#333333"
+                            : "#f0f0f0",
                         borderColor:
                           checkInInterval === interval
                             ? "#007AFF"
@@ -355,8 +359,8 @@ export default function FriendWalkScreen() {
                             checkInInterval === interval
                               ? "white"
                               : isDark
-                                ? "#ffffff"
-                                : "#000000",
+                              ? "#ffffff"
+                              : "#000000",
                         },
                       ]}
                     >
@@ -402,8 +406,8 @@ export default function FriendWalkScreen() {
                       backgroundColor: selectedFriends.includes(friend.id)
                         ? "#007AFF"
                         : isDark
-                          ? "#333333"
-                          : "#f0f0f0",
+                        ? "#333333"
+                        : "#f0f0f0",
                       borderColor: friend.isOnline ? "#34C759" : "#FF3B30",
                     },
                   ]}
@@ -417,8 +421,8 @@ export default function FriendWalkScreen() {
                         color: selectedFriends.includes(friend.id)
                           ? "#ffffff"
                           : isDark
-                            ? "#ffffff"
-                            : "#000000",
+                          ? "#ffffff"
+                          : "#000000",
                       },
                     ]}
                   >
@@ -455,31 +459,17 @@ export default function FriendWalkScreen() {
               Route Preview
             </Text>
             <View style={styles.mapPreview}>
-              <MapView
-                style={styles.mapPreviewMap}
-                initialRegion={{
-                  latitude: (fromLocation.latitude + toLocation.latitude) / 2,
-                  longitude:
-                    (fromLocation.longitude + toLocation.longitude) / 2,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-              >
-                <Marker
-                  coordinate={fromLocation}
-                  title="From"
-                  pinColor="#007AFF"
-                />
-                <Marker coordinate={toLocation} title="To" pinColor="#34C759" />
+              <View style={styles.mapPreviewMap}>
+                <Text style={styles.mapPreviewText}>
+                  From: {fromLocation.name}
+                </Text>
+                <Text style={styles.mapPreviewText}>To: {toLocation.name}</Text>
                 {routeCoordinates.length > 1 && (
-                  <Polyline
-                    coordinates={routeCoordinates}
-                    strokeColor="#007AFF"
-                    strokeWidth={3}
-                    lineDashPattern={[5, 5]}
-                  />
+                  <Text style={styles.mapPreviewText}>
+                    Route Points: {routeCoordinates.length - 2} points
+                  </Text>
                 )}
-              </MapView>
+              </View>
             </View>
           </View>
 
@@ -686,26 +676,15 @@ export default function FriendWalkScreen() {
 
         {/* Map with Route */}
         <View style={styles.activeMapContainer}>
-          <MapView
-            style={styles.activeMap}
-            initialRegion={{
-              latitude: (fromLocation.latitude + toLocation.latitude) / 2,
-              longitude: (fromLocation.longitude + toLocation.longitude) / 2,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker coordinate={fromLocation} title="From" pinColor="#007AFF" />
-            <Marker coordinate={toLocation} title="To" pinColor="#34C759" />
+          <View style={styles.activeMap}>
+            <Text style={styles.mapPreviewText}>From: {fromLocation.name}</Text>
+            <Text style={styles.mapPreviewText}>To: {toLocation.name}</Text>
             {routeCoordinates.length > 1 && (
-              <Polyline
-                coordinates={routeCoordinates}
-                strokeColor="#007AFF"
-                strokeWidth={3}
-                lineDashPattern={[5, 5]}
-              />
+              <Text style={styles.mapPreviewText}>
+                Route Points: {routeCoordinates.length - 2} points
+              </Text>
             )}
-          </MapView>
+          </View>
         </View>
 
         {/* Timer and Controls */}

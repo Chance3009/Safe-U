@@ -129,6 +129,18 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mapText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
   },
   bottomSheet: {
     borderTopLeftRadius: 20,

@@ -220,6 +220,18 @@ const styles = StyleSheet.create({
   },
   mapPreviewMap: {
     flex: 1,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mapPreviewText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
   },
   startButton: {
     flexDirection: "row",
@@ -420,7 +432,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flex: 1,
-    width: '100%',
+    width: "100%",
   },
 });
 
