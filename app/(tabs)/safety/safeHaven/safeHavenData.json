@@ -60,5 +60,10 @@
       "features": ["24/7 Access", "Security Personnel", "Emergency Exits"],
       "isOpen": true
     }
+  ],
+  "emergencyContacts":[
+    { "name": "Campus Emergency", "number": "+60-3-1234-9999", "type": "Emergency" },
+    { "name": "Security Hotline", "number": "+60-3-1234-8888", "type": "Security" },
+    { "name": "Student Affairs", "number": "+60-3-1234-7777", "type": "Support" }
   ]
 }

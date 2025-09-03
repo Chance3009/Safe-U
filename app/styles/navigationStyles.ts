@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+    height: 300,
     margin: 20,
     borderRadius: 15,
     overflow: "hidden",
@@ -45,6 +46,8 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+    width: "100%",
+    height: "100%",
   },
   navigationInfo: {
     padding: 20,

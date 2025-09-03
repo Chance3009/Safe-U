@@ -185,11 +185,6 @@ export default function NavigationScreen() {
             <Ionicons name="call" size={20} color="white" />
             <Text style={styles.emergencyButtonText}>Emergency Call</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.mapsButton} onPress={handleOpenInMaps}>
-            <Ionicons name="open-outline" size={20} color="white" />
-            <Text style={styles.mapsButtonText}>Open in Maps</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Safety Instructions */}
