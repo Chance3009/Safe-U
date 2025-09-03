@@ -1,21 +1,16 @@
-import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
   useColorScheme,
-  Dimensions,
   Linking,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import styles from "../components/styles/safety-knowledge-detailStyle";
-
-const { width } = Dimensions.get("window");
+import styles from "./styles/safety-knowledge-detailStyle";
 
 interface SafetyDetail {
   id: string;

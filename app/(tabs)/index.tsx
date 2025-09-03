@@ -246,7 +246,7 @@ export default function SOSScreen() {
           <Text style={styles.sosButtonSubtext}>
             {isEmergencyActive
               ? "Tap to confirm safe"
-              : "Hold 1s to prevent accidental"}
+              : "Hold 1s to prevent accidental taps"}
           </Text>
         </TouchableOpacity>
 

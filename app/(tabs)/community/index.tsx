@@ -12,7 +12,6 @@ import {
   PanResponder,
   ImageSourcePropType,
 } from "react-native";
-import styles from "../../../components/styles/communityStyles";
 import { Ionicons } from "@expo/vector-icons";
 
 import styles from "../../styles/communityStyles";

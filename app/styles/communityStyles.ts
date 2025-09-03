@@ -7,7 +7,6 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 50,
     paddingBottom: 16,
-    paddingBottom: 16,
     paddingHorizontal: 16,
   },
   title: {
@@ -44,17 +43,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   filterContainer: {
-    flexDirection: "column",
-    gap: 16,
-    marginBottom: 16,
-  },
-  filterContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     justifyContent: "space-between",
-  },
-  makePostContainer: {
   },
   makePostContainer: {
     alignItems: "center",
@@ -67,7 +59,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 8,
     minWidth: 160,
-    minWidth: 160,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -79,31 +70,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   categoryFilterButton: {
-  categoryFilterButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
-    gap: 8,
-    minWidth: 160,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  categoryFilterButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  makePostButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 24,
     gap: 8,
     minWidth: 160,
     shadowColor: "#000",
@@ -139,7 +110,6 @@ const styles = StyleSheet.create({
     top: 120,
     left: 16,
     width: 180,
-    width: 180,
     borderRadius: 12,
     padding: 8,
     shadowColor: "#000",
@@ -158,31 +128,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   sortOptionText: {
-    fontSize: 16,
-  },
-  categoryFilterDropdown: {
-    position: "absolute",
-    top: 120,
-    left: 200,
-    width: 180,
-    borderRadius: 12,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 1000,
-  },
-  categoryFilterOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  categoryFilterOptionText: {
     fontSize: 16,
   },
   categoryFilterDropdown: {
@@ -832,6 +777,5 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
 });
-
 
 export default styles;

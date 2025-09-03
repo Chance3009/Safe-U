@@ -261,6 +261,7 @@ const styles = StyleSheet.create({
   },
   closeModalButton: {
     padding: 5,
+    marginBottom: 20,
   },
   modalScrollView: {
     padding: 15,
@@ -341,6 +342,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     marginHorizontal: 5,
+    marginBottom: 10,
   },
   modalButtonText: {
     color: "white",
