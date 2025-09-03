@@ -14,8 +14,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
 
-import styles from "../../components/styles/indexStyles";
-import indexData from "./indexData.json";
+import styles from '../styles/sosPageStyles';
+import indexData from './indexData.json';
 
 interface EmergencyContact {
   id: string;
@@ -246,7 +246,7 @@ export default function SOSScreen() {
           <Text style={styles.sosButtonSubtext}>
             {isEmergencyActive
               ? "Tap to confirm safe"
-              : "Hold 1s to prevent accidental"}
+              : "Hold 1s to prevent accidental taps"}
           </Text>
         </TouchableOpacity>
 

@@ -12,8 +12,9 @@ import {
   PanResponder,
   ImageSourcePropType,
 } from "react-native";
-import styles from "../../../components/styles/communityStyles";
 import { Ionicons } from "@expo/vector-icons";
+
+import styles from "../../styles/communityStyles";
 import communityData from "./communityData.json";
 import { eventsData } from "./eventsData.js";
 import { safetyCategoriesData } from "./SafetyCategory";
@@ -1853,3 +1854,4 @@ const getCategoryColor = (category: string) => {
       return "#34C759";
   }
 };
+

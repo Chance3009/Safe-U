@@ -9,7 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polygon, Callout } from 'react-native-maps';
 
-import styles from '../../../components/styles/alertStyles';
+import styles from '../../styles/alertStyles';
 import alertsData from './alertsData.json';
 
 interface AdminAlert {
@@ -93,10 +93,10 @@ export default function AlertsScreen() {
                     <Text style={[styles.title, { color: isDark ? '#ffffff' : '#000000' }]}>
                         Official Alerts
                     </Text>
-                    <View style={styles.headerBadge}>
+                    {/* <View style={styles.headerBadge}>
                         <Ionicons name="shield-checkmark" size={16} color="#34C759" />
                         <Text style={styles.headerBadgeText}>Admin Verified</Text>
-                    </View>
+                    </View> */}
                 </View>
                 <Text style={[styles.subtitle, { color: isDark ? '#999999' : '#666666' }]}>
                     Critical safety information from campus authorities

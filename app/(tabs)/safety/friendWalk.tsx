@@ -12,8 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { useRouter } from "expo-router";
 
-import profileData from "./safetyData.json";
-import styles from "../../../components/styles/safetyStyles";
+import friendWalkData from "./safetyData.json";
+import styles from "../../styles/safetyStyles";
 interface Friend {
   id: string;
   name: string;
@@ -53,11 +53,11 @@ export default function FriendWalkScreen() {
   const isDark = useColorScheme() === "dark";
   const checkInTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [friends] = useState<Friend[]>(profileData.friends);
+  const [friends] = useState<Friend[]>(friendWalkData.friends);
 
-  const [recentLocations] = useState<Location[]>(profileData.recentLocations);
+  const [recentLocations] = useState<Location[]>(friendWalkData.recentLocations);
 
-  const [safePoints] = useState<Location[]>(profileData.safePoints);
+  const [safePoints] = useState<Location[]>(friendWalkData.safePoints);
 
   useEffect(() => {
     if (isFriendWalkActive && currentScreen === "active") {
