@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     gap: 4,
   },
-  headerBadgeText: {
+  badgeText: {
     color: "white",
     fontSize: 12,
     fontWeight: "600",
@@ -172,6 +172,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     gap: 12,
+  },
+  severityIndicator: {
+    width: 4,
+    height: 40,
+    borderRadius: 2,
+  },
+  categoryIcon: {
+    marginRight: 8,
+  },
+  alertMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  alertInfo: {
+    gap: 8,
+    marginBottom: 12,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  expiryInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+  },
+  expiryText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  radiusInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+  },
+  radiusText: {
+    fontSize: 14,
   },
   alertTitle: {
     fontSize: 18,

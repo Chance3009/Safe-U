@@ -11,7 +11,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
-import styles from "../../../components/styles/profileStyles";
+
+import styles from "../../styles/profileStyles";
+// Import the data from the JSON file
 import profileData from "./profileData.json";
 import {
   handleEditProfile,

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import styles from "../../../components/styles/alertStyles";
+import styles from "../../styles/alertStyles";
 import alertsData from "./alertsData.json";
 
 interface AdminAlert {

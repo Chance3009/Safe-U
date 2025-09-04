@@ -12,8 +12,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
-import styles from "../../../components/styles/reportStyles";
 import * as ImagePicker from "expo-image-picker";
+import reportData from "./reportData.json";
+import styles from "../../styles/reportStyles";
 
 interface ReportItem {
   id: string;
@@ -54,67 +55,17 @@ export default function ReportScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const categories = [
-    {
-      id: "security",
-      name: "Security Concern",
-      icon: "shield",
-      color: "#FF4444",
-    },
-    { id: "harassment", name: "Harassment", icon: "warning", color: "#FF9500" },
-    { id: "facility", name: "Facility Issue", icon: "build", color: "#007AFF" },
-    {
-      id: "suspicious",
-      name: "Suspicious Activity",
-      icon: "eye",
-      color: "#AF52DE",
-    },
-    {
-      id: "other",
-      name: "Other",
-      icon: "ellipsis-horizontal",
-      color: "#666666",
-    },
-  ];
+  const categories = reportData.categories;
 
-  const [reportStatuses, setReportStatuses] = useState<ReportItem[]>([
-    {
-      id: "1",
-      title: "Suspicious person near library",
-      category: "Security Concern",
-      status: "open",
-      date: "2024-01-15",
-      description:
-        "I witnessed a suspicious person loitering around the library entrance around 3 PM today. He was acting strangely and made me feel uncomfortable.",
-      images: [],
-      videos: [],
-      isAnonymous: false,
-    },
-    {
-      id: "2",
-      title: "Broken streetlight on campus",
-      category: "Facility Issue",
-      status: "acknowledged",
-      date: "2024-01-14",
-      description:
-        "There is a broken streetlight near the Engineering Building that has been out for several days. It's creating a safety hazard in the area.",
-      images: [],
-      videos: [],
-      isAnonymous: false,
-    },
-    {
-      id: "3",
-      title: "Harassment in parking lot",
-      category: "Harassment",
-      status: "resolved",
-      date: "2024-01-10",
-      description:
-        "I experienced verbal harassment from an unknown person in the main parking lot while walking to my car after evening classes.",
-      images: [],
-      videos: [],
-      isAnonymous: true,
-    },
-  ]);
+  const [reportStatuses, setReportStatuses] = useState<ReportItem[]>(
+    reportData.reportStatuses.map((item: any) => ({
+      ...item,
+      description: item.description ?? "",
+      images: item.images ?? [],
+      videos: item.videos ?? [],
+      isAnonymous: item.isAnonymous ?? false,
+    }))
+  );
 
   const handleVoiceReport = () => {
     if (isRecording) {

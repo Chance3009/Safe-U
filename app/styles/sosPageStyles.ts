@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   },
   sosButtonSubtext: {
     color: "white",
+    width: "90%",
     fontSize: 14,
     marginTop: 8,
     textAlign: "center",
