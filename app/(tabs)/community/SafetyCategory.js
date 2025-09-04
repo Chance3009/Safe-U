@@ -1,4 +1,4 @@
-export const safetyCategoriesData = [
+const safetyCategoriesData = [
   {
     id: "harassment",
     title: "Harassment Prevention",
@@ -54,3 +54,5 @@ export const safetyCategoriesData = [
     image: require("../../../assets/images/emergency-response-hero.webp"),
   },
 ];
+
+export default safetyCategoriesData;

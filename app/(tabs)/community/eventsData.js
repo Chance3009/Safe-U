@@ -1,4 +1,4 @@
-export const eventsData = [
+const eventsData = [
   {
     id: "1",
     title: "Mental Health Awareness Workshop",
@@ -50,3 +50,5 @@ export const eventsData = [
       "Connect with fellow students and build meaningful relationships. This casual meetup focuses on creating a supportive community where everyone feels welcome and valued. Activities include ice breakers, group discussions, and team building exercises.",
   },
 ];
+
+export default eventsData;
