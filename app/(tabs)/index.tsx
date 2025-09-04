@@ -10,6 +10,7 @@ import {
   useColorScheme,
   Animated,
   Linking,
+  Share, //added import
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -170,6 +171,35 @@ export default function SOSScreen() {
         return "On my way";
       default:
         return "Pending";
+    }
+  };
+
+  const handleShareLocation = async () => {
+    try {
+      const shareUrl = `https://maps.google.com/?q=${userLocation.latitude},${userLocation.longitude}`;
+      const message = `🚨 EMERGENCY ALERT 🚨\n\nI need help! My current location is:\n${shareUrl}\n\nThis is an automated message from SafeU app.`;
+      
+      const result = await Share.share({
+        message: message,
+        url: shareUrl, // On iOS, this will be handled separately
+        title: 'Emergency Location Share',
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type (iOS)
+          console.log('Shared via', result.activityType);
+        } else {
+          // Shared (Android)
+          console.log('Location shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Dismissed
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to share location');
+      console.error('Share error:', error);
     }
   };
 
@@ -503,7 +533,10 @@ export default function SOSScreen() {
 
             {selectedTab === "actions" && (
               <View style={styles.actionsTab}>
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleShareLocation} // Use the new function
+                >
                   <Ionicons name="share" size={24} color="#007AFF" />
                   <Text
                     style={[
@@ -514,6 +547,7 @@ export default function SOSScreen() {
                     Share link
                   </Text>
                 </TouchableOpacity>
+                
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => {
