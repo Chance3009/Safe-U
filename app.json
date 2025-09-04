@@ -17,9 +17,6 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your current position on the map and allow you to pick locations."
-      },
-      "config": {
-        "googleMapsApiKey": "AIzaSyBN2Snf3Mszi0DGC7Syu6aAuxIQ_v_f3bA"
       }
     },
     "android": {
@@ -37,11 +34,6 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyBN2Snf3Mszi0DGC7Syu6aAuxIQ_v_f3bA"
-        }
-      },
       "package": "com.vicoders.safeu"
     },
     "web": {

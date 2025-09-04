@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
-  Dimensions,
   ActivityIndicator,
   Platform,
   ScrollView,
@@ -14,7 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import EventBus from "../utils/eventBus";
 import * as Location from "expo-location";
-import { WebView } from "react-native-webview";
+import * as WebBrowser from "expo-web-browser";
 
 interface PlaceDetails {
   name: string;
@@ -38,8 +37,6 @@ export default function MapPickerScreen() {
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [webViewReady, setWebViewReady] = useState(false);
-  const [useTestMode, setUseTestMode] = useState(false);
 
   useEffect(() => {
     requestLocationPermission();
@@ -49,708 +46,221 @@ export default function MapPickerScreen() {
     try {
       setIsLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
-
       if (status === "granted") {
         setHasLocationPermission(true);
-        // Get current location
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setSelectedCoord({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
+        await getCurrentLocation();
       } else {
-        setHasLocationPermission(false);
-        Alert.alert(
-          "Location Permission Required",
-          "This app needs location access to show your current position on the map and allow you to pick locations.",
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Settings",
-              onPress: () =>
-                Alert.alert(
-                  "Settings",
-                  "Please enable location permissions in your device settings."
-                ),
-            },
-          ]
-        );
+        setMapError("Location permission denied");
       }
     } catch (error) {
       console.error("Error requesting location permission:", error);
-      setHasLocationPermission(false);
+      setMapError("Failed to request location permission");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleMapMessage = async (event: any) => {
+  const getCurrentLocation = async () => {
     try {
-      console.log("Received message from WebView:", event.nativeEvent.data);
-      const data = JSON.parse(event.nativeEvent.data);
-
-      if (data.type === "locationSelected") {
-        const { latitude, longitude, placeDetails } = data;
-        setSelectedCoord({ latitude, longitude });
-
-        if (placeDetails) {
-          setSelectedPlace(placeDetails);
-          setTypedLocation(placeDetails.name || placeDetails.address);
-        } else {
-          // Fallback to coordinates if no place details
-          const coordString = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-          setTypedLocation(coordString);
-          setSelectedPlace(null);
-        }
-      } else if (data.type === "webViewReady") {
-        setWebViewReady(true);
-        console.log("WebView is ready");
-      } else if (data.type === "apiKeyError") {
-        setMapError("Google Maps API key error: " + data.message);
-        setUseTestMode(true);
-      }
+      const location = await Location.getCurrentPositionAsync({});
+      setSelectedCoord({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      setSelectedPlace({
+        name: "Current Location",
+        address: `${location.coords.latitude.toFixed(
+          6
+        )}, ${location.coords.longitude.toFixed(6)}`,
+        placeId: `current_${Date.now()}`,
+        types: ["point_of_interest"],
+      });
     } catch (error) {
-      console.error("Error handling map message:", error);
+      console.error("Error getting current location:", error);
+      setMapError("Failed to get current location");
     }
   };
 
-  const chooseLocation = () => {
-    if (selectedPlace) {
-      // Use the place name and details
-      const locationToSend = {
-        name: selectedPlace.name,
-        address: selectedPlace.address,
-        coordinates: selectedCoord,
-        placeId: selectedPlace.placeId,
-        types: selectedPlace.types,
-      };
-      EventBus.emit("locationPicked", locationToSend);
-      router.back();
-      return;
-    }
-
+  const openMapInBrowser = async () => {
     if (selectedCoord) {
-      // Use coordinates if no place details
-      const locationToSend = {
-        name: typedLocation || "Selected Location",
-        address: `${selectedCoord.latitude.toFixed(
-          5
-        )}, ${selectedCoord.longitude.toFixed(5)}`,
-        coordinates: selectedCoord,
+      const url = `https://www.google.com/maps?q=${selectedCoord.latitude},${selectedCoord.longitude}`;
+      await WebBrowser.openBrowserAsync(url);
+    }
+  };
+
+  const handleConfirmLocation = () => {
+    if (selectedCoord) {
+      const locationData = {
+        coordinate: selectedCoord,
+        place: selectedPlace,
+        typedLocation: typedLocation,
       };
-      EventBus.emit("locationPicked", locationToSend);
+
+      EventBus.emit("locationSelected", locationData);
       router.back();
-      return;
-    }
-
-    if (!typedLocation.trim()) {
+    } else {
       Alert.alert(
-        "Location required",
-        "Please tap on the map or enter a location."
+        "No Location Selected",
+        "Please get your current location first."
       );
-      return;
     }
+  };
 
-    EventBus.emit("locationPicked", { name: typedLocation.trim() });
+  const handleCancel = () => {
     router.back();
   };
 
-  const renderTestMap = () => {
-    const testMapHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body { 
-              margin: 0; 
-              padding: 0; 
-              font-family: Arial, sans-serif; 
-              background: #f0f0f0;
-            }
-            #map { 
-              width: 100%; 
-              height: 100vh; 
-              background: linear-gradient(45deg, #e0e0e0, #f5f5f5);
-              position: relative;
-              overflow: hidden;
-            }
-            .test-instructions {
-              position: absolute;
-              top: 20px;
-              left: 20px;
-              right: 20px;
-              background: white;
-              padding: 15px;
-              border-radius: 10px;
-              box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-              z-index: 1000;
-              text-align: center;
-            }
-            .test-map-grid {
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-image: 
-                linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
-              background-size: 20px 20px;
-            }
-            .clickable-area {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              width: 200px;
-              height: 200px;
-              background: rgba(0, 122, 255, 0.1);
-              border: 2px dashed #007AFF;
-              border-radius: 50%;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #007AFF;
-              font-weight: bold;
-              text-align: center;
-              transition: all 0.3s ease;
-            }
-            .clickable-area:hover {
-              background: rgba(0, 122, 255, 0.2);
-              transform: translate(-50%, -50%) scale(1.1);
-            }
-            .coordinates-display {
-              position: absolute;
-              bottom: 20px;
-              left: 20px;
-              right: 20px;
-              background: rgba(0,0,0,0.8);
-              color: white;
-              padding: 15px;
-              border-radius: 10px;
-              text-align: center;
-              font-family: monospace;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="test-instructions">
-            <h3>🧪 Test Mode - Simple Location Picker</h3>
-            <p>Click anywhere on the map to select a location</p>
-            <p><strong>Note:</strong> Google Maps API key needs to be fixed for full functionality</p>
-          </div>
-          
-          <div id="map">
-            <div class="test-map-grid"></div>
-            <div class="clickable-area" onclick="selectLocation()">
-              🎯<br>Click Here<br>to Select
-            </div>
-            <div class="coordinates-display" id="coordinates">
-              No location selected yet
-            </div>
-          </div>
-          
-          <script>
-            let selectedLocation = null;
-            
-            // Make the entire map clickable
-            document.getElementById('map').addEventListener('click', function(event) {
-              if (event.target.id !== 'map' && !event.target.classList.contains('clickable-area')) {
-                return;
-              }
-              
-              const rect = event.target.getBoundingClientRect();
-              const x = event.clientX - rect.left;
-              const y = event.clientY - rect.top;
-              
-              // Convert to approximate coordinates (this is just for testing)
-              const lat = 5.4164 + (y - rect.height/2) * 0.001;
-              const lng = 100.3327 + (x - rect.width/2) * 0.001;
-              
-              selectLocation(lat, lng);
-            });
-            
-            function selectLocation(lat = null, lng = null) {
-              if (lat === null || lng === null) {
-                // Use default coordinates for demo
-                lat = 5.4164;
-                lng = 100.3327;
-              }
-              
-              selectedLocation = { lat, lng };
-              
-              // Update display
-              document.getElementById('coordinates').innerHTML = 
-                \`Selected: \${lat.toFixed(6)}, \${lng.toFixed(6)}\`;
-              
-              // Send to React Native
-              window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'locationSelected',
-                latitude: lat,
-                longitude: lng,
-                placeDetails: {
-                  name: 'Test Location',
-                  address: \`Test Address at \${lat.toFixed(6)}, \${lng.toFixed(6)}\`,
-                  placeId: 'test_place_id',
-                  types: ['test_location']
-                }
-              }));
-            }
-            
-            // Notify React Native that WebView is ready
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'webViewReady',
-              message: 'Test map loaded successfully'
-            }));
-          </script>
-        </body>
-      </html>
-    `;
+  const handleManualLocation = () => {
+    if (typedLocation.trim()) {
+      // For demo purposes, use a default location
+      // In a real app, you'd use a geocoding service
+      const defaultLocation = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+      };
 
-    return (
-      <View style={styles.mapContainer}>
-        <WebView
-          source={{ html: testMapHtml }}
-          style={styles.map}
-          onMessage={handleMapMessage}
-          onError={(syntheticEvent: any) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn("WebView error: ", nativeEvent);
-            setMapError("Failed to load test map.");
-          }}
-          onLoadStart={() => {
-            console.log("Test map load started");
-            setMapError(null);
-          }}
-          onLoadEnd={() => {
-            console.log("Test map load ended");
-          }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.mapLoading}>
-              <ActivityIndicator size="large" color="#007AFF" />
-              <Text style={styles.mapLoadingText}>Loading Test Map...</Text>
-            </View>
-          )}
-        />
-        {!webViewReady && (
-          <View style={styles.webViewOverlay}>
-            <Text style={styles.webViewOverlayText}>Loading Test Map...</Text>
-          </View>
-        )}
-      </View>
-    );
+      setSelectedCoord(defaultLocation);
+      setSelectedPlace({
+        name: typedLocation,
+        address: `${defaultLocation.latitude.toFixed(
+          6
+        )}, ${defaultLocation.longitude.toFixed(6)}`,
+        placeId: `manual_${Date.now()}`,
+        types: ["point_of_interest"],
+      });
+    }
   };
 
-  const renderMap = () => {
-    if (isLoading) {
-      return (
-        <View style={styles.mapPlaceholder}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading map...</Text>
-        </View>
-      );
-    }
-
-    if (!hasLocationPermission) {
-      return (
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.errorText}>Location permission required</Text>
-          <TouchableOpacity
-            style={styles.permissionButton}
-            onPress={requestLocationPermission}
-          >
-            <Text style={styles.permissionButtonText}>Grant Permission</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
-
-    if (mapError) {
-      return (
-        <View style={styles.mapPlaceholder}>
-          <Text style={styles.errorText}>Map loading error</Text>
-          <Text style={styles.errorSubtext}>{mapError}</Text>
-          <View style={styles.errorActions}>
-            <TouchableOpacity
-              style={styles.permissionButton}
-              onPress={() => setMapError(null)}
-            >
-              <Text style={styles.permissionButtonText}>Retry</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.permissionButton,
-                { backgroundColor: "#34C759", marginLeft: 10 },
-              ]}
-              onPress={() => setUseTestMode(true)}
-            >
-              <Text style={styles.permissionButtonText}>Use Test Mode</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      );
-    }
-
-    // If in test mode, show test map
-    if (useTestMode) {
-      return renderTestMap();
-    }
-
-    // Create HTML for Google Maps with Places API integration
-    const mapHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body { 
-              margin: 0; 
-              padding: 0; 
-              font-family: Arial, sans-serif; 
-              background: #f0f0f0;
-            }
-            #map { 
-              width: 100%; 
-              height: 100vh; 
-              background: #e0e0e0;
-            }
-            .map-controls {
-              position: absolute;
-              top: 10px;
-              left: 10px;
-              z-index: 1000;
-              background: white;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-              padding: 10px;
-              max-width: 300px;
-            }
-            .instructions {
-              font-size: 12px;
-              color: #666;
-              margin-bottom: 8px;
-            }
-            .debug-info {
-              position: absolute;
-              bottom: 10px;
-              left: 10px;
-              background: rgba(0,0,0,0.7);
-              color: white;
-              padding: 8px;
-              border-radius: 4px;
-              font-size: 11px;
-              z-index: 1000;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="map-controls">
-            <div class="instructions">
-              <strong>📍 Tap anywhere on the map to select a location</strong><br>
-              Loading Google Maps...
-            </div>
-          </div>
-          <div id="map">
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #666;">
-              Loading Google Maps...
-            </div>
-          </div>
-          <div class="debug-info" id="debugInfo">Initializing...</div>
-          
-          <script>
-            console.log('WebView script loaded');
-            
-            // Notify React Native that WebView is ready
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'webViewReady',
-              message: 'WebView loaded successfully'
-            }));
-
-            let map;
-            let marker;
-            let placesService;
-            let geocoder;
-            let currentLocation = { 
-              lat: ${selectedCoord?.latitude || 5.4164}, 
-              lng: ${selectedCoord?.longitude || 100.3327} 
-            };
-
-            function updateDebugInfo(message) {
-              const debugInfo = document.getElementById('debugInfo');
-              if (debugInfo) {
-                debugInfo.textContent = message;
-              }
-              console.log('Debug:', message);
-            }
-
-            function initMap() {
-              updateDebugInfo('Initializing map...');
-              
-              try {
-                map = new google.maps.Map(document.getElementById('map'), {
-                  center: currentLocation,
-                  zoom: 15,
-                  mapTypeId: google.maps.MapTypeId.ROADMAP
-                });
-
-                updateDebugInfo('Map created successfully');
-
-                // Initialize services
-                placesService = new google.maps.places.PlacesService(map);
-                geocoder = new google.maps.Geocoder();
-
-                // Add current location marker
-                marker = new google.maps.Marker({
-                  position: currentLocation,
-                  map: map,
-                  title: 'Your Location',
-                  icon: {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                  }
-                });
-
-                updateDebugInfo('Marker added');
-
-                // Handle map clicks
-                map.addListener('click', function(event) {
-                  const clickedLocation = event.latLng;
-                  updateDebugInfo('Location clicked: ' + clickedLocation.lat() + ', ' + clickedLocation.lng());
-                  
-                  // Remove previous marker
-                  if (marker) {
-                    marker.setMap(null);
-                  }
-                  
-                  // Add new marker at clicked location
-                  marker = new google.maps.Marker({
-                    position: clickedLocation,
-                    map: map,
-                    title: 'Selected Location',
-                    icon: {
-                      url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                    }
-                  });
-
-                  // Get place details for the clicked location
-                  getPlaceDetails(clickedLocation);
-                });
-
-                updateDebugInfo('Map ready - tap to select location');
-
-                // Try to get user's current location
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                      const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                      };
-                      currentLocation = pos;
-                      map.setCenter(pos);
-                      marker.setPosition(pos);
-                      updateDebugInfo('Current location updated');
-                    },
-                    function() {
-                      updateDebugInfo('Error getting current location');
-                    }
-                  );
-                }
-              } catch (error) {
-                updateDebugInfo('Error initializing map: ' + error.message);
-                console.error('Map initialization error:', error);
-              }
-            }
-
-            function getPlaceDetails(location, placeId = null) {
-              updateDebugInfo('Getting place details...');
-              
-              if (placeId) {
-                // Get detailed place information
-                const request = {
-                  placeId: placeId,
-                  fields: ['name', 'formatted_address', 'geometry', 'types', 'formatted_phone_number', 'website', 'rating', 'user_ratings_total']
-                };
-                
-                placesService.getDetails(request, function(place, status) {
-                  if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    sendPlaceDetails(location, place);
-                  } else {
-                    // Fallback to reverse geocoding
-                    reverseGeocode(location);
-                  }
-                });
-              } else {
-                // Use reverse geocoding for clicked locations
-                reverseGeocode(location);
-              }
-            }
-
-            function reverseGeocode(location) {
-              geocoder.geocode({ location: location }, function(results, status) {
-                if (status === 'OK' && results[0]) {
-                  const result = results[0];
-                  const placeDetails = {
-                    name: result.formatted_address,
-                    address: result.formatted_address,
-                    placeId: result.place_id,
-                    types: result.types || []
-                  };
-                  sendPlaceDetails(location, placeDetails);
-                } else {
-                  // Send coordinates only
-                  sendPlaceDetails(location, null);
-                }
-              });
-            }
-
-            function sendPlaceDetails(location, placeDetails) {
-              const data = {
-                type: 'locationSelected',
-                latitude: location.lat(),
-                longitude: location.lng(),
-                placeDetails: placeDetails
-              };
-              
-              updateDebugInfo('Sending location data...');
-              window.ReactNativeWebView.postMessage(JSON.stringify(data));
-            }
-
-            // Handle Google Maps API load errors
-            window.gm_authFailure = function() {
-              updateDebugInfo('Google Maps API authentication failed');
-              window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'apiKeyError',
-                message: 'API key authentication failed'
-              }));
-            };
-
-            // Set a timeout to check if Google Maps loads
-            setTimeout(function() {
-              if (!map) {
-                updateDebugInfo('Google Maps failed to load - check API key');
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                  type: 'apiKeyError',
-                  message: 'Google Maps failed to load'
-                }));
-              }
-            }, 10000);
-          </script>
-          <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBN2Snf3Mszi0DGC7Syu6aAuxIQ_v_f3bA&libraries=places&callback=initMap">
-          </script>
-        </body>
-      </html>
-    `;
-
+  if (isLoading) {
     return (
-      <View style={styles.mapContainer}>
-        <WebView
-          source={{ html: mapHtml }}
-          style={styles.map}
-          onMessage={handleMapMessage}
-          onError={(syntheticEvent: any) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn("WebView error: ", nativeEvent);
-            setMapError(
-              "Failed to load map. Please check your internet connection."
-            );
-          }}
-          onHttpError={(syntheticEvent: any) => {
-            const { nativeEvent } = syntheticEvent;
-            console.warn("WebView HTTP error: ", nativeEvent);
-          }}
-          onLoadStart={() => {
-            console.log("WebView load started");
-            setMapError(null);
-          }}
-          onLoadEnd={() => {
-            console.log("WebView load ended");
-          }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.mapLoading}>
-              <ActivityIndicator size="large" color="#007AFF" />
-              <Text style={styles.mapLoadingText}>Loading Google Maps...</Text>
-            </View>
-          )}
-        />
-        {!webViewReady && (
-          <View style={styles.webViewOverlay}>
-            <Text style={styles.webViewOverlayText}>
-              Loading Google Maps...
-            </Text>
-          </View>
-        )}
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Getting your location...</Text>
       </View>
     );
-  };
+  }
+
+  if (mapError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{mapError}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={requestLocationPermission}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Pick a Location</Text>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Select Location</Text>
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            !selectedCoord && styles.confirmButtonDisabled,
+          ]}
+          onPress={handleConfirmLocation}
+          disabled={!selectedCoord}
+        >
+          <Text
+            style={[
+              styles.confirmButtonText,
+              !selectedCoord && styles.confirmButtonTextDisabled,
+            ]}
+          >
+            Confirm
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      {renderMap()}
-
-      {selectedPlace && (
-        <View style={styles.placeContainer}>
-          <Text style={styles.placeLabel}>Selected Place:</Text>
-          <Text style={styles.placeName}>{selectedPlace.name}</Text>
-          <Text style={styles.placeAddress}>{selectedPlace.address}</Text>
-          {selectedPlace.types && selectedPlace.types.length > 0 && (
-            <View style={styles.placeTypes}>
-              {selectedPlace.types.slice(0, 3).map((type, index) => (
-                <View key={index} style={styles.typeTag}>
-                  <Text style={styles.typeText}>{type.replace(/_/g, " ")}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-          {selectedPlace.phoneNumber && (
-            <Text style={styles.placeDetail}>
-              📞 {selectedPlace.phoneNumber}
+      <ScrollView style={styles.content}>
+        {/* Current Location Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Current Location</Text>
+          <TouchableOpacity
+            style={styles.locationButton}
+            onPress={getCurrentLocation}
+          >
+            <Text style={styles.locationButtonText}>
+              📍 Get Current Location
             </Text>
-          )}
-          {selectedPlace.website && (
-            <Text style={styles.placeDetail}>🌐 {selectedPlace.website}</Text>
-          )}
-          {selectedPlace.rating && (
-            <Text style={styles.placeDetail}>
-              ⭐ {selectedPlace.rating}/5 ({selectedPlace.userRatingsTotal}{" "}
-              reviews)
-            </Text>
-          )}
+          </TouchableOpacity>
         </View>
-      )}
 
-      {selectedCoord && !selectedPlace && (
-        <View style={styles.coordinatesContainer}>
-          <Text style={styles.coordinatesLabel}>Selected Coordinates:</Text>
-          <Text style={styles.coordinatesText}>
-            {selectedCoord.latitude.toFixed(6)},{" "}
-            {selectedCoord.longitude.toFixed(6)}
+        {/* Manual Location Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Or Enter Location Manually</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Enter location name..."
+            value={typedLocation}
+            onChangeText={setTypedLocation}
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity
+            style={[
+              styles.manualButton,
+              !typedLocation.trim() && styles.manualButtonDisabled,
+            ]}
+            onPress={handleManualLocation}
+            disabled={!typedLocation.trim()}
+          >
+            <Text
+              style={[
+                styles.manualButtonText,
+                !typedLocation.trim() && styles.manualButtonTextDisabled,
+              ]}
+            >
+              Use This Location
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Selected Location Info */}
+        {selectedCoord && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Selected Location</Text>
+            <View style={styles.locationInfo}>
+              <Text style={styles.locationInfoText}>
+                {selectedPlace?.name || "Selected Location"}
+              </Text>
+              <Text style={styles.coordinateText}>
+                {selectedCoord.latitude.toFixed(6)},{" "}
+                {selectedCoord.longitude.toFixed(6)}
+              </Text>
+              <TouchableOpacity
+                style={styles.mapButton}
+                onPress={openMapInBrowser}
+              >
+                <Text style={styles.mapButtonText}>🗺️ View on Map</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Instructions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Instructions</Text>
+          <Text style={styles.instructionText}>
+            • Tap "Get Current Location" to use your GPS location{"\n"}• Or type
+            a location name and tap "Use This Location"{"\n"}• Tap "View on Map"
+            to see the location in your browser{"\n"}• Tap "Confirm" when you're
+            ready to use this location
           </Text>
         </View>
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Or type a location manually"
-        placeholderTextColor="#888"
-        value={typedLocation}
-        onChangeText={setTypedLocation}
-      />
-
-      <TouchableOpacity style={styles.submitButton} onPress={chooseLocation}>
-        <Text style={styles.submitText}>Use this Location</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -758,187 +268,169 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    padding: 16,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 16,
-  },
-  mapContainer: {
-    width: Dimensions.get("window").width - 32,
-    height: 300,
-    borderRadius: 12,
-    marginBottom: 16,
-    position: "relative",
-  },
-  map: {
-    width: Dimensions.get("window").width - 32,
-    height: 300,
-    borderRadius: 12,
-  },
-  mapPlaceholder: {
-    width: Dimensions.get("window").width - 32,
-    height: 300,
-    borderRadius: 12,
-    backgroundColor: "#f0f0f0",
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
+    backgroundColor: "#fff",
   },
   loadingText: {
-    marginTop: 8,
+    marginTop: 16,
     fontSize: 16,
     color: "#666",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 20,
   },
   errorText: {
     fontSize: 16,
-    fontWeight: "600",
     color: "#ff3b30",
     textAlign: "center",
+    marginBottom: 20,
   },
-  errorSubtext: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  permissionButton: {
+  retryButton: {
     backgroundColor: "#007AFF",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+    marginBottom: 10,
   },
-  permissionButtonText: {
+  retryButtonText: {
     color: "#fff",
+    fontSize: 16,
     fontWeight: "600",
   },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 12,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+    backgroundColor: "#fff",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#000",
+  },
+  cancelButton: {
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
+    paddingVertical: 8,
   },
-  submitButton: {
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#007AFF",
+  },
+  confirmButton: {
     backgroundColor: "#007AFF",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
-  submitText: {
+  confirmButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  confirmButtonText: {
     color: "#fff",
-    fontWeight: "700",
-  },
-  addressContainer: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  addressLabel: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
   },
-  addressText: {
-    fontSize: 14,
-    color: "#333",
+  confirmButtonTextDisabled: {
+    color: "#999",
   },
-  mapLoading: {
-    width: Dimensions.get("window").width - 32,
-    height: 300,
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#000",
+    marginBottom: 12,
+  },
+  locationButton: {
+    backgroundColor: "#34C759",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
   },
-  mapLoadingText: {
-    marginTop: 8,
+  locationButtonText: {
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  searchInput: {
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    fontSize: 16,
+    color: "#000",
+    marginBottom: 12,
+  },
+  manualButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  manualButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  manualButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  manualButtonTextDisabled: {
+    color: "#999",
+  },
+  locationInfo: {
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+  },
+  locationInfoText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+    marginBottom: 8,
+  },
+  coordinateText: {
+    fontSize: 14,
     color: "#666",
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    marginBottom: 12,
   },
-  webViewOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255,255,255,0.8)",
-    justifyContent: "center",
+  mapButton: {
+    backgroundColor: "#FF9500",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
     alignItems: "center",
-    zIndex: 10,
   },
-  webViewOverlayText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  placeContainer: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  placeLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  placeName: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  placeAddress: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 8,
-  },
-  placeTypes: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 8,
-  },
-  typeTag: {
-    backgroundColor: "#007AFF",
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  typeText: {
+  mapButtonText: {
     color: "#fff",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "600",
   },
-  placeDetail: {
+  instructionText: {
     fontSize: 14,
-    color: "#555",
-    marginTop: 4,
-  },
-  coordinatesContainer: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-  },
-  coordinatesLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  coordinatesText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  errorActions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+    color: "#666",
+    lineHeight: 20,
   },
 });
