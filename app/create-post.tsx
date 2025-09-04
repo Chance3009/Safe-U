@@ -23,6 +23,17 @@ const CATEGORIES = [
   "Escalated",
 ] as const;
 
+interface LocationData {
+  name: string;
+  address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  placeId?: string;
+  types?: string[];
+}
+
 export default function CreatePostScreen() {
   const router = useRouter();
   const [content, setContent] = useState("");
@@ -30,10 +41,23 @@ export default function CreatePostScreen() {
   const [imageUrls, setImageUrls] = useState<string>("");
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [locationText, setLocationText] = useState("");
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
+
   React.useEffect(() => {
-    const unsub = EventBus.addListener("locationPicked", (loc: string) => {
-      setLocationText(loc);
-    });
+    const unsub = EventBus.addListener(
+      "locationPicked",
+      (loc: LocationData | string) => {
+        if (typeof loc === "string") {
+          // Handle legacy string format
+          setLocationText(loc);
+          setLocationData(null);
+        } else {
+          // Handle new object format from map-picker
+          setLocationText(loc.name);
+          setLocationData(loc);
+        }
+      }
+    );
     return () => unsub();
   }, []);
 
@@ -78,19 +102,47 @@ export default function CreatePostScreen() {
           ].filter(Boolean);
 
           const readableAddress = addressParts.join(", ");
-          setLocationText(readableAddress);
+
+          // Try to get a more specific place name
+          let placeName = "Current Location";
+          if (address.name) {
+            placeName = address.name;
+          } else if (address.street) {
+            placeName = address.street;
+          } else if (address.district) {
+            placeName = address.district;
+          } else if (address.city) {
+            placeName = address.city;
+          }
+
+          setLocationText(placeName);
+
+          // Store location data with coordinates
+          setLocationData({
+            name: placeName,
+            address: readableAddress,
+            coordinates: { latitude, longitude },
+          });
 
           // Confirm location was set
           Alert.alert(
             "Location set",
-            `Your current location has been set to: ${readableAddress}`
+            `Your current location has been set to: ${placeName}`
           );
         } else {
           // Fallback to coordinates if reverse geocoding fails
           const locationString = `${latitude.toFixed(5)}, ${longitude.toFixed(
             5
           )}`;
-          setLocationText(locationString);
+          setLocationText("Current Location");
+
+          // Store location data with coordinates
+          setLocationData({
+            name: "Current Location",
+            address: locationString,
+            coordinates: { latitude, longitude },
+          });
+
           Alert.alert(
             "Location set",
             `Your current location has been set to: ${locationString}`
@@ -102,7 +154,15 @@ export default function CreatePostScreen() {
         const locationString = `${latitude.toFixed(5)}, ${longitude.toFixed(
           5
         )}`;
-        setLocationText(locationString);
+        setLocationText("Current Location");
+
+        // Store location data with coordinates
+        setLocationData({
+          name: "Current Location",
+          address: locationString,
+          coordinates: { latitude, longitude },
+        });
+
         Alert.alert(
           "Location set",
           `Your current location has been set to: ${locationString}`
@@ -171,6 +231,7 @@ export default function CreatePostScreen() {
       escalationStatus: "none" as const,
       escalationThreshold: 500,
       location: locationText.trim(),
+      locationData: locationData, // Include coordinates and place details
     };
 
     EventBus.emit("postCreated", newPost);
@@ -323,6 +384,15 @@ export default function CreatePostScreen() {
         value={locationText}
         onChangeText={setLocationText}
       />
+      {locationData && locationData.coordinates && (
+        <View style={styles.coordinatesDisplay}>
+          <Text style={styles.coordinatesLabel}>📍 Coordinates:</Text>
+          <Text style={styles.coordinatesText}>
+            {locationData.coordinates.latitude.toFixed(6)},{" "}
+            {locationData.coordinates.longitude.toFixed(6)}
+          </Text>
+        </View>
+      )}
       <View style={{ flexDirection: "row", gap: 8, marginBottom: 20 }}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -401,4 +471,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   submitButtonText: { color: "#fff", fontWeight: "700" },
+  coordinatesDisplay: {
+    backgroundColor: "#f0f8ff",
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#007AFF",
+  },
+  coordinatesLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#007AFF",
+    marginBottom: 2,
+  },
+  coordinatesText: {
+    fontSize: 11,
+    color: "#666",
+    fontFamily: "monospace",
+  },
 });
