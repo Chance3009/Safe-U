@@ -108,7 +108,7 @@ SafeU App
    yarn install
    ```
 3. **Make sure you have the specified Node version**
-  ```bash
+   ```bash
    nvm use
    # if you don't have the same version, please install the exact same version
    ```
