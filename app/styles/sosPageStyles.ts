@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   sosContainerActive: {
     flex: 0, // Don't take up extra space when active
     paddingTop: 30, // Add space below app bar
-    paddingBottom: 10,
+    paddingBottom: 20, // Increased from 10 to 20 for better spacing
   },
   sosButton: {
     width: 280,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     height: 200,
     marginHorizontal: 20,
     marginBottom: 20,
-    marginTop: 150,
+    marginTop: 20, // Changed from 150 to 20
     borderRadius: 16,
     overflow: "hidden",
   },
@@ -132,16 +132,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bottomSheet: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 280, // Increased height to accommodate People tab content
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingTop: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   tabContainer: {
     flexDirection: "row",
@@ -162,48 +165,35 @@ const styles = StyleSheet.create({
     color: "#666666",
   },
   tabContent: {
-    minHeight: 200,
+    flex: 1, // Changed back from fixed height to flex
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   statusTab: {
-    gap: 16,
-  },
-  statusItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  statusText: {
-    fontSize: 16,
-    fontWeight: "500",
     flex: 1,
-  },
-  toggleButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  toggleButtonText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
+    gap: 8,
   },
   peopleTab: {
-    gap: 16,
+    flex: 1,
+    paddingTop: 8,
   },
   peopleTabContent: {
-    paddingBottom: 20, // Add padding at the bottom for better scrolling
-    gap: 16,
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   contactItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 12,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: "#333333",
+    minHeight: 60, // Ensure adequate height for touch targets
   },
   contactInfo: {
     flex: 1,
+    marginRight: 12,
   },
   contactName: {
     fontSize: 16,
@@ -214,8 +204,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   contactStatus: {
-    alignItems: "flex-end",
-    gap: 4,
+    alignItems: "center",
+    marginRight: 12,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -232,10 +222,11 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   contactCallButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    backgroundColor: "#f0f0f0",
-    marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   actionsTab: {
     gap: 16,
@@ -310,6 +301,30 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     fontSize: 16,
+    fontWeight: "600",
+    color: "white",
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginLeft: 12,
+    flex: 1,
+  },
+  statusItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  toggleButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    minWidth: 50,
+    alignItems: "center",
+  },
+  toggleButtonText: {
+    fontSize: 14,
     fontWeight: "600",
     color: "white",
   },

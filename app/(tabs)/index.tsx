@@ -10,6 +10,7 @@ import {
   useColorScheme,
   Animated,
   Linking,
+  Share, //added import
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -173,6 +174,35 @@ export default function SOSScreen() {
     }
   };
 
+  const handleShareLocation = async () => {
+    try {
+      const shareUrl = `https://maps.google.com/?q=${userLocation.latitude},${userLocation.longitude}`;
+      const message = `🚨 EMERGENCY ALERT 🚨\n\nI need help! My current location is:\n${shareUrl}\n\nThis is an automated message from SafeU app.`;
+      
+      const result = await Share.share({
+        message: message,
+        url: shareUrl, // On iOS, this will be handled separately
+        title: 'Emergency Location Share',
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type (iOS)
+          console.log('Shared via', result.activityType);
+        } else {
+          // Shared (Android)
+          console.log('Location shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Dismissed
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to share location');
+      console.error('Share error:', error);
+    }
+  };
+
   if (countdownActive) {
     return (
       <View style={[styles.container, { backgroundColor: "#FF0000" }]}>
@@ -219,100 +249,103 @@ export default function SOSScreen() {
         </View>
       )}
 
-      {/* Main SOS Button - Changed to rectangular when active */}
-      <View
-        style={[
-          styles.sosContainer,
-          isEmergencyActive && styles.sosContainerActive,
-        ]}
-      >
-        <TouchableOpacity
+      {/* Main Content Container - Add flex structure */}
+      <View style={{ flex: 1 }}>
+        {/* Main SOS Button */}
+        <View
           style={[
-            styles.sosButton,
-            isEmergencyActive ? styles.endSosButton : null,
-            { backgroundColor: isEmergencyActive ? "#FF4444" : "#FF0000" },
+            styles.sosContainer,
+            isEmergencyActive && styles.sosContainerActive,
           ]}
-          onPress={isEmergencyActive ? handleEndEmergency : handleEmergencySOS}
-          activeOpacity={0.8}
         >
-          <Ionicons
-            name={isEmergencyActive ? "checkmark-circle" : "warning"}
-            size={isEmergencyActive ? 40 : 60}
-            color="white"
-          />
-          <Text style={styles.sosButtonText}>
-            {isEmergencyActive ? "END SOS" : "EMERGENCY SOS"}
-          </Text>
-          <Text style={styles.sosButtonSubtext}>
-            {isEmergencyActive
-              ? "Tap to confirm safe"
-              : "Hold 1s to prevent accidental taps"}
-          </Text>
-        </TouchableOpacity>
-
-        {!isEmergencyActive && (
           <TouchableOpacity
-            style={styles.callSecurityButton}
-            onPress={() => {
-              Alert.alert(
-                "Call Campus Security",
-                "Do you want to call campus security?",
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Call",
-                    onPress: () => {
-                      const phoneNumber = "+1-555-123-4567"; // Replace with actual campus security number
-                      Linking.openURL(`tel:${phoneNumber}`);
-                    },
-                  },
-                ]
-              );
-            }}
+            style={[
+              styles.sosButton,
+              isEmergencyActive ? styles.endSosButton : null,
+              { backgroundColor: isEmergencyActive ? "#FF4444" : "#FF0000" },
+            ]}
+            onPress={isEmergencyActive ? handleEndEmergency : handleEmergencySOS}
+            activeOpacity={0.8}
           >
-            <Ionicons name="call" size={24} color="white" />
-            <Text style={styles.callSecurityText}>Call Campus Security</Text>
+            <Ionicons
+              name={isEmergencyActive ? "checkmark-circle" : "warning"}
+              size={isEmergencyActive ? 40 : 60}
+              color="white"
+            />
+            <Text style={styles.sosButtonText}>
+              {isEmergencyActive ? "END SOS" : "EMERGENCY SOS"}
+            </Text>
+            <Text style={styles.sosButtonSubtext}>
+              {isEmergencyActive
+                ? "Tap to confirm safe"
+                : "Hold 1s to prevent accidental taps"}
+            </Text>
           </TouchableOpacity>
+
+          {!isEmergencyActive && (
+            <TouchableOpacity
+              style={styles.callSecurityButton}
+              onPress={() => {
+                Alert.alert(
+                  "Call Campus Security",
+                  "Do you want to call campus security?",
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Call",
+                      onPress: () => {
+                        const phoneNumber = "+1-555-123-4567"; // Replace with actual campus security number
+                        Linking.openURL(`tel:${phoneNumber}`);
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
+              <Ionicons name="call" size={24} color="white" />
+              <Text style={styles.callSecurityText}>Call Campus Security</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Map View when SOS is active */}
+        {isEmergencyActive && (
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: userLocation.latitude,
+                longitude: userLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              {/* User location marker */}
+              <Marker
+                coordinate={userLocation}
+                title="Your Location"
+                description="SOS Active"
+                pinColor="#FF0000"
+              />
+
+              {/* Location history breadcrumbs */}
+              {locationHistory.length > 1 && (
+                <Polyline
+                  coordinates={locationHistory}
+                  strokeColor="#FF0000"
+                  strokeWidth={3}
+                  lineDashPattern={[5, 5]}
+                />
+              )}
+            </MapView>
+          </View>
         )}
       </View>
 
-      {/* Map View when SOS is active - Adjusted position */}
-      {isEmergencyActive && (
-        <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            {/* User location marker */}
-            <Marker
-              coordinate={userLocation}
-              title="Your Location"
-              description="SOS Active"
-              pinColor="#FF0000"
-            />
-
-            {/* Location history breadcrumbs */}
-            {locationHistory.length > 1 && (
-              <Polyline
-                coordinates={locationHistory}
-                strokeColor="#FF0000"
-                strokeWidth={3}
-                lineDashPattern={[5, 5]}
-              />
-            )}
-          </MapView>
-        </View>
-      )}
-
-      {/* Bottom Sheet with Tabs */}
+      {/* Bottom Sheet */}
       {isEmergencyActive && (
         <View
           style={[
@@ -421,8 +454,9 @@ export default function SOSScreen() {
             {selectedTab === "people" && (
               <ScrollView
                 style={styles.peopleTab}
-                showsVerticalScrollIndicator={true}
                 contentContainerStyle={styles.peopleTabContent}
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
               >
                 {emergencyContacts.map((contact) => (
                   <View key={contact.id} style={styles.contactItem}>
@@ -465,30 +499,33 @@ export default function SOSScreen() {
                           ETA: {contact.eta}
                         </Text>
                       )}
-                      <TouchableOpacity
-                        style={styles.contactCallButton}
-                        onPress={() => {
-                          Alert.alert(
-                            `Call ${contact.name}`,
-                            `Do you want to call ${contact.name}?`,
-                            [
-                              {
-                                text: "Cancel",
-                                style: "cancel",
-                              },
-                              {
-                                text: "Call",
-                                onPress: () => {
-                                  Linking.openURL(`tel:${contact.phone}`);
-                                },
-                              },
-                            ]
-                          );
-                        }}
-                      >
-                        <Ionicons name="call" size={20} color="#34C759" />
-                      </TouchableOpacity>
                     </View>
+                    <TouchableOpacity
+                      style={[
+                        styles.contactCallButton,
+                        { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                      ]}
+                      onPress={() => {
+                        Alert.alert(
+                          `Call ${contact.name}`,
+                          `Do you want to call ${contact.name}?`,
+                          [
+                            {
+                              text: "Cancel",
+                              style: "cancel",
+                            },
+                            {
+                              text: "Call",
+                              onPress: () => {
+                                Linking.openURL(`tel:${contact.phone}`);
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                    >
+                      <Ionicons name="call" size={20} color="#34C759" />
+                    </TouchableOpacity>
                   </View>
                 ))}
               </ScrollView>
@@ -496,7 +533,10 @@ export default function SOSScreen() {
 
             {selectedTab === "actions" && (
               <View style={styles.actionsTab}>
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleShareLocation} // Use the new function
+                >
                   <Ionicons name="share" size={24} color="#007AFF" />
                   <Text
                     style={[
@@ -507,6 +547,7 @@ export default function SOSScreen() {
                     Share link
                   </Text>
                 </TouchableOpacity>
+                
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => {
