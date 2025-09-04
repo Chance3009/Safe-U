@@ -124,7 +124,7 @@ SafeU App
 
 ```bash
 # Start development server
-npx expo start -c
+npm start
 
 # Run on iOS
 npm run ios
