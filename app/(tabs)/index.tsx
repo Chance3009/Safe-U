@@ -14,8 +14,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import styles from '../styles/sosPageStyles';
-import indexData from './indexData.json';
+import styles from "../styles/sosPageStyles";
+import indexData from "./indexData.json";
 
 interface EmergencyContact {
   id: string;
@@ -177,28 +177,28 @@ export default function SOSScreen() {
     try {
       const shareUrl = `https://maps.google.com/?q=${userLocation.latitude},${userLocation.longitude}`;
       const message = `🚨 EMERGENCY ALERT 🚨\n\nI need help! My current location is:\n${shareUrl}\n\nThis is an automated message from SafeU app.`;
-      
+
       const result = await Share.share({
         message: message,
         url: shareUrl, // On iOS, this will be handled separately
-        title: 'Emergency Location Share',
+        title: "Emergency Location Share",
       });
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // Shared via activity type (iOS)
-          console.log('Shared via', result.activityType);
+          console.log("Shared via", result.activityType);
         } else {
           // Shared (Android)
-          console.log('Location shared successfully');
+          console.log("Location shared successfully");
         }
       } else if (result.action === Share.dismissedAction) {
         // Dismissed
-        console.log('Share dismissed');
+        console.log("Share dismissed");
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to share location');
-      console.error('Share error:', error);
+      Alert.alert("Error", "Failed to share location");
+      console.error("Share error:", error);
     }
   };
 
@@ -263,7 +263,9 @@ export default function SOSScreen() {
               isEmergencyActive ? styles.endSosButton : null,
               { backgroundColor: isEmergencyActive ? "#FF4444" : "#FF0000" },
             ]}
-            onPress={isEmergencyActive ? handleEndEmergency : handleEmergencySOS}
+            onPress={
+              isEmergencyActive ? handleEndEmergency : handleEmergencySOS
+            }
             activeOpacity={0.8}
           >
             <Ionicons
@@ -310,36 +312,58 @@ export default function SOSScreen() {
           )}
         </View>
 
-        {/* Map View when SOS is active */}
+        {/* Map View when SOS is active - Temporarily disabled due to compatibility issues */}
         {isEmergencyActive && (
           <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: userLocation.latitude,
-                longitude: userLocation.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
+            <View
+              style={[
+                styles.map,
+                {
+                  backgroundColor: isDark ? "#2c2c2e" : "#f0f0f0",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              ]}
             >
-              {/* User location marker */}
-              <Marker
-                coordinate={userLocation}
-                title="Your Location"
-                description="SOS Active"
-                pinColor="#FF0000"
-              />
-
-              {/* Location history breadcrumbs */}
-              {locationHistory.length > 1 && (
-                <Polyline
-                  coordinates={locationHistory}
-                  strokeColor="#FF0000"
-                  strokeWidth={3}
-                  lineDashPattern={[5, 5]}
-                />
-              )}
-            </MapView>
+              <Ionicons name="location" size={48} color="#FF0000" />
+              <Text
+                style={[
+                  styles.mapPlaceholderText,
+                  {
+                    color: isDark ? "#ffffff" : "#000000",
+                    marginTop: 16,
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                SOS Location Tracking
+              </Text>
+              <Text
+                style={[
+                  styles.mapPlaceholderSubtext,
+                  {
+                    color: isDark ? "#999999" : "#666666",
+                    marginTop: 8,
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Your location is being tracked
+              </Text>
+              <Text
+                style={[
+                  styles.mapPlaceholderSubtext,
+                  {
+                    color: isDark ? "#999999" : "#666666",
+                    marginTop: 4,
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Lat: {userLocation.latitude.toFixed(6)}, Lng:{" "}
+                {userLocation.longitude.toFixed(6)}
+              </Text>
+            </View>
           </View>
         )}
       </View>
@@ -546,7 +570,7 @@ export default function SOSScreen() {
                     Share link
                   </Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={styles.actionButton}
                   onPress={() => {

@@ -340,6 +340,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "white",
   },
+  mapPlaceholderText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 14,
+    textAlign: "center",
+  },
 });
 
 export default styles;
