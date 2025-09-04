@@ -123,7 +123,7 @@ export default function SafetyScreen() {
             styles.safetyCard,
             { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
           ]}
-          onPress={() => router.push("/safety/campusBus/index.tsx")}
+          onPress={() => router.push("/safety/campusBus/index")}
         >
           <View style={styles.cardHeader}>
             <Ionicons name="bus" size={32} color="#FF9500" />
