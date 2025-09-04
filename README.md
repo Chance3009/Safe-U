@@ -107,15 +107,20 @@ SafeU App
    # or
    yarn install
    ```
+3. **Make sure you have the specified Node version**
+  ```bash
+   nvm use
+   # if you don't have the same version, please install the exact same version
+   ```
 
-3. **Start the development server**
+4. **Start the development server**
    ```bash
    npm start
    # or
    yarn start
    ```
 
-4. **Run on device/simulator**
+5. **Run on device/simulator**
    - Press `i` for iOS simulator
    - Press `a` for Android emulator
    - Scan QR code with Expo Go app on your phone
