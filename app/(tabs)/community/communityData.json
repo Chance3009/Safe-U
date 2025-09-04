@@ -3,12 +3,13 @@
     {
       "id": "1",
       "author": "Muhd bin A",
-      "content": "PSA: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
-      "image": "🌳",
+      "content":
+        "PSA: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
+      "images": [],
       "upvotes": 12000,
       "downvotes": 0,
       "comments": 1000,
-      "timestamp": "2 hours ago",
+      "timestamp": "2025-09-01T00:08:35.534Z",
       "category": "PSA",
       "escalationStatus": "escalated",
       "escalationThreshold": 10000,
@@ -18,11 +19,12 @@
     {
       "id": "2",
       "author": "Sarah Chen",
-      "content": "Heads up: The library entrance is slippery due to recent rain. Please be careful when entering.",
+      "content":
+        "Heads up: The library entrance is slippery due to recent rain. Please be careful when entering.",
       "upvotes": 450,
       "downvotes": 12,
       "comments": 89,
-      "timestamp": "4 hours ago",
+      "timestamp": "2025-08-29T00:08:35.534Z",
       "category": "Safety",
       "escalationStatus": "pending",
       "escalationThreshold": 500,
@@ -31,11 +33,12 @@
     {
       "id": "3",
       "author": "Mike Johnson",
-      "content": "The vending machine near Engineering Building is out of order. Maintenance has been notified.",
+      "content":
+        "The vending machine near Engineering Building is out of order. Maintenance has been notified.",
       "upvotes": 234,
       "downvotes": 5,
       "comments": 45,
-      "timestamp": "6 hours ago",
+      "timestamp": "2025-08-25T00:08:35.534Z",
       "category": "Facility",
       "escalationStatus": "none",
       "escalationThreshold": 1000,
@@ -44,16 +47,31 @@
     {
       "id": "4",
       "author": "Aisha Rahman",
-      "content": "URGENT: Suspicious person loitering around the Science Building parking lot. Multiple students have reported feeling unsafe.",
+      "content":
+        "URGENT: Suspicious person loitering around the Science Building parking lot. Multiple students have reported feeling unsafe.",
       "upvotes": 890,
       "downvotes": 2,
       "comments": 156,
-      "timestamp": "1 hour ago",
+      "timestamp": "2025-09-02T00:08:35.534Z",
       "category": "Safety",
       "escalationStatus": "pending",
       "escalationThreshold": 500,
       "location": "Science Building Parking, USM",
       "coordinates": { "latitude": 5.4164, "longitude": 100.3327 }
+    },
+    {
+      "id": "5",
+      "author": "David Lee",
+      "content":
+        "The cafeteria has been cleaned and sanitized. All safety protocols are now in place.",
+      "upvotes": 156,
+      "downvotes": 3,
+      "comments": 23,
+      "timestamp": "2025-08-01T00:08:35.534Z",
+      "category": "General",
+      "escalationStatus": "resolved",
+      "escalationThreshold": 1000,
+      "location": "Cafeteria, USM"
     }
   ]
 }
