@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   actionButtons: {
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 15,
     marginBottom: 20,
   },
@@ -137,6 +137,15 @@ const styles = StyleSheet.create({
     color: "#007AFF",
     textAlign: "center",
     marginTop: 20,
+  },
+  mapPlaceholderText: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 14,
+    textAlign: "center",
   },
 });
 
