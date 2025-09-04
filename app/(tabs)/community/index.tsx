@@ -16,8 +16,22 @@ import { Ionicons } from "@expo/vector-icons";
 
 import styles from "../../styles/communityStyles";
 import communityData from "./communityData.json";
-import { eventsData } from "./eventsData.js";
-import { safetyCategoriesData } from "./SafetyCategory";
+import eventsData from "./eventsData.json";
+
+const imageMap = {
+  "event1.webp": require("../../../assets/images/event1.webp"),
+  "event2.webp": require("../../../assets/images/event2.webp"),
+  "event3.webp": require("../../../assets/images/event3.webp"),
+  "event4.webp": require("../../../assets/images/event4.webp"),
+  "event5.webp": require("../../../assets/images/event5.webp"),
+};
+
+const getImageSource = (image: string) => {
+  if (typeof image === "string" && image.startsWith("http")) return { uri: image };
+  if (typeof image === "string") return imageMap[image as keyof typeof imageMap] || null;
+  return null;
+};
+import safetyCategoriesData from "./SafetyCategory.json";
 
 interface CommentItem {
   id: string;
@@ -377,7 +391,7 @@ export default function CommunityScreen() {
 
   const handleNavigateToAlerts = () => {
     // TODO: Navigate to Alerts tab
-    console.log("Navigate to Alerts");
+    router.push("/(tabs)/alerts");
   };
 
   const handleDeletePost = (post: CommunityPost) => {
@@ -1624,7 +1638,7 @@ export default function CommunityScreen() {
             >
               {/* Event Image */}
               <Image
-                source={event.image}
+                source={getImageSource(event.image)}
                 style={styles.eventImage}
                 resizeMode="cover"
               />
@@ -1634,7 +1648,7 @@ export default function CommunityScreen() {
                 <Text
                   style={[
                     styles.eventTitle,
-                    { color: isDark ? "#ffffff" : "#000000" },
+                    { color: "#000000" },
                   ]}
                 >
                   {event.title}
@@ -1695,7 +1709,10 @@ export default function CommunityScreen() {
                 <TouchableOpacity
                   style={styles.viewMoreButton}
                   onPress={() => {
-                    setSelectedEvent(event);
+                    setSelectedEvent({
+                      ...event,
+                      image: getImageSource(event.image)
+                    });
                     setShowEventModal(true);
                   }}
                 >
