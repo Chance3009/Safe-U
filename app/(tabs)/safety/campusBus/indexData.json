@@ -1,0 +1,56 @@
+{
+  "activeBuses": 5,
+  "closestBusStop": {
+    "name": "Stop 13",
+    "distance": "50m"
+  },
+  "buses": [
+    {
+      "id": "bus1",
+      "name": "Bus 1",
+      "code": "ABC 1234",
+      "location": "Near School of Management",
+      "eta": "3 min",
+      "status": "active",
+      "route": "Campus Loop A"
+    },
+    {
+      "id": "bus2",
+      "name": "Bus 2",
+      "code": "ABC 5423",
+      "location": "Near Faculty of Computer Sci",
+      "eta": "7 min",
+      "status": "active",
+      "route": "Campus Loop B"
+    },
+    {
+      "id": "bus3",
+      "name": "Bus 2",
+      "code": "ABC 5423",
+      "location": "Near Faculty of Computer Sci",
+      "eta": "12 min",
+      "status": "selected",
+      "route": "Campus Loop B"
+    }
+  ],
+  "busStops": [
+    {
+      "id": "stop1",
+      "name": "Stop 1 - Main Gate",
+      "latitude": 37.7749,
+      "longitude": -122.4194
+    },
+    {
+      "id": "stop13",
+      "name": "Stop 13 - Library",
+      "latitude": 37.7849,
+      "longitude": -122.4094
+    },
+    {
+      "id": "stop7",
+      "name": "Stop 7 - Student Center",
+      "latitude": 37.7649,
+      "longitude": -122.4294
+    }
+  ]
+}
