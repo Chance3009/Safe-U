@@ -3,33 +3,57 @@ import WebView from "react-native-webview";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import * as Location from "expo-location";
 
-export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
-  interface PlaceDetails {
-    name: string;
-    address: string;
-    placeId: string;
-    types: string[];
-    phoneNumber?: string;
-    website?: string;
-    rating?: number;
-    userRatingsTotal?: number;
-  }
+interface LocationType {
+  latitude: number;
+  longitude: number;
+  name?: string;
+}
+
+interface ViewMapProps {
+  fromLocation?: LocationType;
+  toLocation?: LocationType;
+  routeCoordinates?: LocationType[];
+  safePoints?: LocationType[];
+  style?: any;
+  darkMode?: boolean;
+  mapHeight?: number;
+}
+
+export default function ViewMap({
+  fromLocation,
+  toLocation,
+  routeCoordinates,
+  safePoints,
+  style,
+  darkMode,
+  mapHeight = 300,
+}: ViewMapProps) {
+  // Provide fallback/defaults for all props
+  const defaultFrom = fromLocation || {
+    latitude: 37.78825,
+    longitude: -122.4324,
+    name: "Start",
+  };
+  const defaultTo = toLocation || {
+    latitude: 37.78925,
+    longitude: -122.4334,
+    name: "End",
+  };
+  const defaultRoute = routeCoordinates || [defaultFrom, defaultTo];
+  const defaultSafePoints = safePoints || [];
 
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
   }>({
-    latitude: 3.1385,
-    longitude: 101.6865,
+    latitude: defaultFrom.latitude,
+    longitude: defaultFrom.longitude,
   });
 
   const [selectedCoord, setSelectedCoord] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
-
-  const [selectedPlace, setSelectedPlace] = useState<PlaceDetails | null>(null);
-
   const [mapError, setMapError] = useState<string | null>(null);
 
   const generateMapHTML = (
@@ -37,6 +61,11 @@ export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
     centerLng: number,
     selectedCoord?: { latitude: number; longitude: number } | null
   ) => {
+    const routePoints = JSON.stringify(defaultRoute);
+    const safePointsArr = JSON.stringify(defaultSafePoints);
+    const from = JSON.stringify(defaultFrom);
+    const to = JSON.stringify(defaultTo);
+
     return `
       <!DOCTYPE html>
       <html>
@@ -52,64 +81,38 @@ export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
         <div id="map"></div>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
-          let map;
-          let marker;
-          let selectedLocation = ${selectedCoord ? JSON.stringify(selectedCoord) : "null"
-      };
+          let map = L.map('map').setView([${centerLat}, ${centerLng}], 15);
 
-          // Initialize map
-          map = L.map('map').setView([${centerLat}, ${centerLng}], 15);
-
-          // Add OpenStreetMap tiles
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
           }).addTo(map);
 
-          // Add click listener to map
-          map.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
-            
-            // Remove existing marker
-            if (marker) {
-              map.removeLayer(marker);
-            }
-            
-            // Add new marker
-            marker = L.marker([lat, lng], {
-              draggable: true
-            }).addTo(map);
+          // From marker
+          const from = ${from};
+          L.marker([from.latitude, from.longitude], {title: from.name || "Start"}).addTo(map)
+            .bindPopup("Start: " + (from.name || ""));
 
-            // Send location to React Native
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'locationSelected',
-              latitude: lat,
-              longitude: lng
-            }));
-          });
+          // To marker
+          const to = ${to};
+          L.marker([to.latitude, to.longitude], {title: to.name || "End"}).addTo(map)
+            .bindPopup("End: " + (to.name || ""));
 
-          // Add marker for selected location if exists
-          if (selectedLocation) {
-            marker = L.marker([selectedLocation.latitude, selectedLocation.longitude], {
-              draggable: true
-            }).addTo(map);
-            
-            // Center map on selected location
-            map.setView([selectedLocation.latitude, selectedLocation.longitude], 15);
+          // Route points (excluding from/to)
+          const routePoints = ${routePoints};
+          for (let i = 1; i < routePoints.length - 1; i++) {
+            const pt = routePoints[i];
+            L.marker([pt.latitude, pt.longitude], {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [24,24]})})
+              .addTo(map)
+              .bindPopup("Route Point: " + (pt.name || ""));
           }
 
-          // Add marker drag listener
-          if (marker) {
-            marker.on('dragend', function(e) {
-              const lat = e.target.getLatLng().lat;
-              const lng = e.target.getLatLng().lng;
-              
-              window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'locationSelected',
-                latitude: lat,
-                longitude: lng
-              }));
-            });
+          // Safe points
+          const safePoints = ${safePointsArr};
+          for (let i = 0; i < safePoints.length; i++) {
+            const pt = safePoints[i];
+            L.marker([pt.latitude, pt.longitude], {icon: L.icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png', iconSize: [24,24]})})
+              .addTo(map)
+              .bindPopup("Safe Point: " + (pt.name || ""));
           }
         </script>
       </body>
@@ -117,152 +120,14 @@ export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
     `;
   };
 
-  const handleMapLocationSelect = async (
-    latitude: number,
-    longitude: number
-  ) => {
-    const coords = { latitude, longitude };
-    setSelectedCoord(coords);
-
-    // Get reverse geocoding for the selected location
-    try {
-      const reverseGeocodeResult = await Location.reverseGeocodeAsync(coords);
-      if (reverseGeocodeResult.length > 0) {
-        const address = reverseGeocodeResult[0];
-        const addressParts = [
-          address.street,
-          address.district,
-          address.city,
-          address.region,
-          address.country,
-        ].filter(Boolean);
-
-        const readableAddress = addressParts.join(", ");
-        let placeName = "Selected Location";
-
-        if (address.name) {
-          placeName = address.name;
-        } else if (address.street) {
-          placeName = address.street;
-        } else if (address.district) {
-          placeName = address.district;
-        } else if (address.city) {
-          placeName = address.city;
-        }
-
-        setSelectedPlace({
-          name: placeName,
-          address: readableAddress,
-          placeId: `selected_${Date.now()}`,
-          types: ["point_of_interest"],
-        });
-      } else {
-        setSelectedPlace({
-          name: "Selected Location",
-          address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(
-            6
-          )}`,
-          placeId: `selected_${Date.now()}`,
-          types: ["point_of_interest"],
-        });
-      }
-    } catch (geocodeError) {
-      console.error("Reverse geocoding error:", geocodeError);
-      setSelectedPlace({
-        name: "Selected Location",
-        address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(
-          6
-        )}`,
-        placeId: `selected_${Date.now()}`,
-        types: ["point_of_interest"],
-      });
-    }
-  };
-
-  const getCurrentLocation = async () => {
-    try {
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      const coords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
-
-      setCurrentLocation(coords);
-      setSelectedCoord(coords);
-
-      // Get reverse geocoding for better place name
-      try {
-        const reverseGeocodeResult = await Location.reverseGeocodeAsync(coords);
-        if (reverseGeocodeResult.length > 0) {
-          const address = reverseGeocodeResult[0];
-          const addressParts = [
-            address.street,
-            address.district,
-            address.city,
-            address.region,
-            address.country,
-          ].filter(Boolean);
-
-          const readableAddress = addressParts.join(", ");
-          let placeName = "Current Location";
-
-          if (address.name) {
-            placeName = address.name;
-          } else if (address.street) {
-            placeName = address.street;
-          } else if (address.district) {
-            placeName = address.district;
-          } else if (address.city) {
-            placeName = address.city;
-          }
-
-          setSelectedPlace({
-            name: placeName,
-            address: readableAddress,
-            placeId: `current_${Date.now()}`,
-            types: ["point_of_interest"],
-          });
-        } else {
-          setSelectedPlace({
-            name: "Current Location",
-            address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(
-              6
-            )}`,
-            placeId: `current_${Date.now()}`,
-            types: ["point_of_interest"],
-          });
-        }
-      } catch (geocodeError) {
-        console.error("Reverse geocoding error:", geocodeError);
-        setSelectedPlace({
-          name: "Current Location",
-          address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(
-            6
-          )}`,
-          placeId: `current_${Date.now()}`,
-          types: ["point_of_interest"],
-        });
-      }
-
-      // Update current location for grid display
-      setCurrentLocation(coords);
-    } catch (error) {
-      console.error("Error getting current location:", error);
-      setMapError("Failed to get current location");
-    }
-  };
-
-  {/* Interactive Map */ }
   return (
-    <View style={[styles.mapContainer, { height: mapHeight }]}>
+    <View style={[styles.mapContainer, { height: mapHeight }, style]}>
       <WebView
         style={styles.map}
         source={{
           html: generateMapHTML(
-            currentLocation?.latitude || 37.7749,
-            currentLocation?.longitude || -122.4194,
+            currentLocation?.latitude || defaultFrom.latitude,
+            currentLocation?.longitude || defaultFrom.longitude,
             selectedCoord
           ),
         }}
@@ -270,7 +135,7 @@ export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
           try {
             const data = JSON.parse(event.nativeEvent.data);
             if (data.type === "locationSelected") {
-              handleMapLocationSelect(data.latitude, data.longitude);
+              // handleMapLocationSelect(data.latitude, data.longitude);
             }
           } catch (error) {
             console.error("Error parsing map message:", error);
@@ -286,7 +151,7 @@ export default function ViewMap({mapHeight=300}: {mapHeight: number}) {
       <View style={styles.mapOverlay}>
         <TouchableOpacity
           style={styles.currentLocationButton}
-          onPress={getCurrentLocation}
+          onPress={() => {}} // You can implement getCurrentLocation if needed
         >
           <Text style={styles.currentLocationButtonText}>📍</Text>
         </TouchableOpacity>
@@ -299,7 +164,6 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     position: "relative",
-    // height will be set dynamically via inline style
   },
   map: {
     flex: 1,
@@ -329,4 +193,4 @@ const styles = StyleSheet.create({
   currentLocationButtonText: {
     fontSize: 24,
   },
-})
+});

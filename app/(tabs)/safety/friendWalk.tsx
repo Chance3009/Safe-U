@@ -11,7 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import friendWalkData from "./safetyData.json";
+import safetyData from "./safetyData.json";
 import styles from "../../styles/safetyStyles";
 import ViewMap from "../../ViewMap";
 
@@ -58,11 +58,11 @@ export default function FriendWalkScreen() {
   const isDark = useColorScheme() === "dark";
   const checkInTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [friends] = useState<Friend[]>(friendWalkData.friends);
+  const [friends] = useState<Friend[]>(safetyData.friends);
 
-  const [recentLocations] = useState<Location[]>(friendWalkData.recentLocations);
+  const [recentLocations] = useState<Location[]>(safetyData.recentLocations);
 
-  const [safePoints] = useState<Location[]>(friendWalkData.safePoints);
+  const [safePoints] = useState<Location[]>(safetyData.safePoints);
 
   useEffect(() => {
     if (isFriendWalkActive && currentScreen === "active") {
@@ -449,7 +449,7 @@ export default function FriendWalkScreen() {
           <View
             style={[
               styles.section,
-              { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+              { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
             ]}
           >
             <Text
@@ -464,7 +464,12 @@ export default function FriendWalkScreen() {
               <ViewMap
                 fromLocation={fromLocation}
                 toLocation={toLocation}
-                routeCoordinates={routeCoordinates}
+                routeCoordinates={
+                  routeCoordinates.length > 1
+                    ? routeCoordinates
+                    : [fromLocation, toLocation]
+                }
+                safePoints={safePoints}
                 style={styles.mapPreviewMap}
                 darkMode={isDark}
               />
@@ -491,7 +496,7 @@ export default function FriendWalkScreen() {
             <View
               style={[
                 styles.locationPickerModal,
-                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1e1f" : "#ffffff" },
               ]}
             >
               <View style={styles.modalHeader}>
@@ -678,6 +683,7 @@ export default function FriendWalkScreen() {
             fromLocation={fromLocation}
             toLocation={toLocation}
             routeCoordinates={routeCoordinates}
+            safePoints={safePoints}
             style={styles.activeMap}
             darkMode={isDark}
           />
@@ -722,5 +728,20 @@ export default function FriendWalkScreen() {
     );
   }
 
+  const previewFrom =
+    fromLocation.name !== "Current Location"
+      ? fromLocation
+      : recentLocations[0] || fromLocation;
+  const previewTo =
+    toLocation.name !== "Destination"
+      ? toLocation
+      : recentLocations[1] || recentLocations[0] || toLocation;
+  const previewRoute =
+    routeCoordinates.length > 1
+      ? routeCoordinates
+      : [previewFrom, previewTo];
+
   return null;
 }
+
+
