@@ -13,6 +13,8 @@ import { useRouter } from "expo-router";
 
 import friendWalkData from "./safetyData.json";
 import styles from "../../styles/safetyStyles";
+import ViewMap from "../../ViewMap";
+
 interface Friend {
   id: string;
   name: string;
@@ -459,17 +461,13 @@ export default function FriendWalkScreen() {
               Route Preview
             </Text>
             <View style={styles.mapPreview}>
-              <View style={styles.mapPreviewMap}>
-                <Text style={styles.mapPreviewText}>
-                  From: {fromLocation.name}
-                </Text>
-                <Text style={styles.mapPreviewText}>To: {toLocation.name}</Text>
-                {routeCoordinates.length > 1 && (
-                  <Text style={styles.mapPreviewText}>
-                    Route Points: {routeCoordinates.length - 2} points
-                  </Text>
-                )}
-              </View>
+              <ViewMap
+                fromLocation={fromLocation}
+                toLocation={toLocation}
+                routeCoordinates={routeCoordinates}
+                style={styles.mapPreviewMap}
+                darkMode={isDark}
+              />
             </View>
           </View>
 
@@ -676,15 +674,13 @@ export default function FriendWalkScreen() {
 
         {/* Map with Route */}
         <View style={styles.activeMapContainer}>
-          <View style={styles.activeMap}>
-            <Text style={styles.mapPreviewText}>From: {fromLocation.name}</Text>
-            <Text style={styles.mapPreviewText}>To: {toLocation.name}</Text>
-            {routeCoordinates.length > 1 && (
-              <Text style={styles.mapPreviewText}>
-                Route Points: {routeCoordinates.length - 2} points
-              </Text>
-            )}
-          </View>
+          <ViewMap
+            fromLocation={fromLocation}
+            toLocation={toLocation}
+            routeCoordinates={routeCoordinates}
+            style={styles.activeMap}
+            darkMode={isDark}
+          />
         </View>
 
         {/* Timer and Controls */}
