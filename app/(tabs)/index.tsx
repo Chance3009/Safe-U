@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import ViewMap from "../ViewMap";
+import ViewMapSos from "@/components/ViewMapSos"; // Changed import
 import {
   View,
   Text,
@@ -51,6 +51,7 @@ export default function SOSScreen() {
     timestamp: new Date(),
   });
   const [locationHistory, setLocationHistory] = useState<Location[]>([]);
+  const [timerDisplay, setTimerDisplay] = useState("00:00"); // Add this state for the timer display
 
   const isDark = useColorScheme() === "dark";
   const countdownAnimation = useRef(new Animated.Value(1)).current;
@@ -135,19 +136,6 @@ export default function SOSScreen() {
     }
   };
 
-  const getEmergencyDuration = () => {
-    if (!emergencyStartTime) return "00:00";
-    const now = new Date();
-    const diff = Math.floor(
-      (now.getTime() - emergencyStartTime.getTime()) / 1000
-    );
-    const minutes = Math.floor(diff / 60);
-    const seconds = diff % 60;
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
@@ -203,6 +191,40 @@ export default function SOSScreen() {
     }
   };
 
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    
+    if (isEmergencyActive && emergencyStartTime) {
+      const updateTimer = () => {
+        const now = new Date();
+        const diff = Math.floor(
+          (now.getTime() - emergencyStartTime.getTime()) / 1000
+        );
+        const minutes = Math.floor(diff / 60);
+        const seconds = diff % 60;
+        const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`;
+        setTimerDisplay(formattedTime);
+      };
+
+      // Update immediately
+      updateTimer();
+      
+      // Then update every second
+      interval = setInterval(updateTimer, 1000);
+    } else {
+      setTimerDisplay("00:00");
+    }
+
+    // Cleanup interval on component unmount or when dependencies change
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isEmergencyActive, emergencyStartTime]);
+
   if (countdownActive) {
     return (
       <View style={[styles.container, { backgroundColor: "#FF0000" }]}>
@@ -243,7 +265,7 @@ export default function SOSScreen() {
           <View style={styles.emergencyStatus}>
             <Ionicons name="warning" size={24} color="#FF0000" />
             <Text style={styles.emergencyStatusText}>
-              SOS Active • {getEmergencyDuration()}
+              SOS Active • {timerDisplay}
             </Text>
           </View>
         </View>
@@ -311,9 +333,13 @@ export default function SOSScreen() {
           )}
         </View>
 
-        {/* Map View when SOS is active */}
+        {/* Map View when SOS is active - CHANGED TO ViewMapSos */}
         {isEmergencyActive && (
-          <ViewMap mapHeight={1500} />
+          <ViewMapSos 
+            mapHeight={400} 
+            darkMode={isDark} 
+            style={{ margin: 16, borderRadius: 12 }}
+          />
         )}
       </View>
 

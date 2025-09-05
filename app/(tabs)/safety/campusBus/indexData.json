@@ -25,12 +25,12 @@
     },
     {
       "id": "bus3",
-      "name": "Bus 2",
-      "code": "ABC 5423",
-      "location": "Near Faculty of Computer Sci",
+      "name": "Bus 3",
+      "code": "ABC 4234",
+      "location": "Near Faculty of Science",
       "eta": "12 min",
       "status": "selected",
-      "route": "Campus Loop B"
+      "route": "Campus Loop C"
     }
   ],
   "busStops": [

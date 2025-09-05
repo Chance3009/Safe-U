@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ViewMap from "@/app/ViewMap";
+import ViewMapAlert from "@/components/ViewMapAlert"; // Changed import
 import {
   View,
   Text,
@@ -30,8 +30,9 @@ interface AdminAlert {
 }
 
 export default function AlertsScreen() {
-  const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
-
+  const [selectedAlert, setSelectedAlert] = useState<string | undefined>(
+    undefined
+  ); // Changed
   const isDark = useColorScheme() === "dark";
 
   const [adminAlerts] = useState<AdminAlert[]>(() => {
@@ -74,7 +75,7 @@ export default function AlertsScreen() {
   };
 
   const handleAlertSelect = (alertId: string) => {
-    setSelectedAlert(alertId === selectedAlert ? null : alertId);
+    setSelectedAlert(alertId === selectedAlert ? undefined : alertId); // Changed
     const alert = adminAlerts.find((a) => a.id === alertId);
   };
 
@@ -101,51 +102,14 @@ export default function AlertsScreen() {
         </Text>
       </View>
 
-      {/* Location Display */}
+      {/* Replace ViewMap with ViewMapAlert */}
       <View style={styles.mapContainer}>
-        <ViewMap mapHeight={200} />
-
-        {/* Map Legend */}
-        <View
-          style={[
-            styles.mapLegend,
-            { backgroundColor: isDark ? "#1c1c1e" : "#ffffff" },
-          ]}
-        >
-          <Text
-            style={[
-              styles.legendTitle,
-              { color: isDark ? "#ffffff" : "#000000" },
-            ]}
-          >
-            Alert Categories
-          </Text>
-          <View style={styles.legendItems}>
-            {[
-              { category: "emergency", label: "Emergency" },
-              { category: "announcement", label: "Announcement" },
-              { category: "facility", label: "Facility" },
-              { category: "weather", label: "Weather" },
-            ].map((item) => (
-              <View key={item.category} style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: getCategoryColor(item.category) },
-                  ]}
-                />
-                <Text
-                  style={[
-                    styles.legendText,
-                    { color: isDark ? "#999999" : "#666666" },
-                  ]}
-                >
-                  {item.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
+        <ViewMapAlert
+          alerts={adminAlerts}
+          selectedAlertId={selectedAlert}
+          mapHeight={200}
+          darkMode={isDark}
+        />
       </View>
 
       {/* Alerts List */}

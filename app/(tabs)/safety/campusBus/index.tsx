@@ -3,11 +3,9 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useRouter } from "expo-router";
-import ViewMap from "@/app/ViewMap";
-// Map functionality temporarily disabled for Expo Go compatibility
-// import MapView, { Marker } from 'react-native-maps';
+import ViewMapBus from "@/components/ViewMapBus"; // Changed import
 import busData from "./indexData.json";
-import styles from "../../../styles/campusBusStyles"; // Add this import
+import styles from "../../../styles/campusBusStyles";
 
 export default function CampusBusScreen() {
   const [selectedBusId, setSelectedBusId] = useState<string>("bus3");
@@ -17,18 +15,33 @@ export default function CampusBusScreen() {
 
   const { activeBuses, closestBusStop, buses, busStops } = busData;
 
+  // Convert buses to include coordinates AND update status based on selection
+  const busesWithCoords = buses.map((bus, index) => ({
+    ...bus,
+    // Override status based on selectedBusId
+    status:
+      bus.id === selectedBusId
+        ? "selected"
+        : bus.status === "active"
+        ? "active"
+        : "inactive",
+    latitude: busStops[index % busStops.length]?.latitude || 37.7749,
+    longitude: busStops[index % busStops.length]?.longitude || -122.4194,
+  }));
+
   const handleBusSelect = (busId: string) => {
     setSelectedBusId(busId);
   };
 
-  const getBusStatusColor = (status: string) => {
-    switch (status) {
-      case "selected":
-        return "#34C759";
+  const getBusStatusColor = (busId: string, originalStatus: string) => {
+    if (busId === selectedBusId) {
+      return "#34C759"; // Green for selected
+    }
+    switch (originalStatus) {
       case "active":
-        return "#007AFF";
+        return "#007AFF"; // Blue for active
       default:
-        return "#999999";
+        return "#999999"; // Gray for inactive
     }
   };
 
@@ -67,9 +80,20 @@ export default function CampusBusScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Map Section - Expo Go Compatible */}
-        <View style={styles.mapContainer}>
-          <ViewMap mapHeight={200} />
+        {/* Map Section - Make sure it's properly positioned */}
+        <View style={[styles.mapContainer, { marginBottom: 20 }]}>
+          <ViewMapBus
+            buses={busesWithCoords}
+            busStops={busStops}
+            selectedBusId={selectedBusId}
+            mapHeight={250}
+            darkMode={isDark}
+            style={{
+              flex: 1,
+              borderRadius: 16,
+              overflow: "hidden",
+            }}
+          />
         </View>
 
         {/* Stats Section */}
@@ -138,7 +162,7 @@ export default function CampusBusScreen() {
                 <View
                   style={[
                     styles.busIcon,
-                    { backgroundColor: getBusStatusColor(bus.status) },
+                    { backgroundColor: getBusStatusColor(bus.id, bus.status) }, // Updated call
                   ]}
                 >
                   <Text style={styles.busIconText}>🚌</Text>
