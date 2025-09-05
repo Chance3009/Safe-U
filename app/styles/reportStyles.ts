@@ -143,12 +143,16 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  quickActionButton: {
+  quickActionButtonContainer: {
     width: "48%",
+    marginBottom: 15,
+  },
+  quickActionButton: {
+    width: "100%",
     padding: 20,
     borderRadius: 12,
     alignItems: "center",
-    marginBottom: 15,
+    minHeight: 80,
   },
   quickActionText: {
     fontSize: 14,
@@ -348,6 +352,57 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  // Location input styles
+  locationInputContainer: {
+    marginTop: 15,
+    marginBottom: 20,
+  },
+  locationInput: {
+    padding: 15,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  locationInfo: {
+    flex: 1,
+    marginRight: 10,
+  },
+  locationName: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  locationAddress: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  locationCoords: {
+    fontSize: 12,
+    fontFamily: "monospace",
+  },
+  clearLocationButton: {
+    padding: 5,
+  },
+  // Modal location styles
+  modalLocationContainer: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  modalLocationName: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  modalLocationAddress: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  modalLocationCoords: {
+    fontSize: 12,
+    fontFamily: "monospace",
   },
 });
 
