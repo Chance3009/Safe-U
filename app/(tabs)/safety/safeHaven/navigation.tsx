@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 
-import ViewMap from "@/app/ViewMap";
+import ViewMap from "@/components/ViewMap";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 // Temporarily commenting out react-native-maps due to compatibility issues

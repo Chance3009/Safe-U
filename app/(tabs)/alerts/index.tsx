@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ViewMap from "@/app/ViewMap";
+import ViewMap from "@/components/ViewMap";
 import {
   View,
   Text,

@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 
 import safetyData from "./safetyData.json";
 import styles from "../../styles/safetyStyles";
-import ViewMap from "../../ViewMap";
+import ViewMap from "../../../components/ViewMap";
 
 interface Friend {
   id: string;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import ViewMapSos from "../ViewMapSos"; // Changed import
+import ViewMapSos from "@/components/ViewMapSos"; // Changed import
 import {
   View,
   Text,
