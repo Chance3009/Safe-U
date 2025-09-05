@@ -493,7 +493,12 @@ export default function CommunityScreen() {
           <Text
             style={[styles.title, { color: isDark ? "#ffffff" : "#000000" }]}
           >
-            Community Reports
+            Community
+          </Text>
+          <Text
+            style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
+          >
+            Share posts, report concerns, and stay informed about upcoming safety events.
           </Text>
 
           {/* Tab Navigation */}
@@ -705,14 +710,14 @@ export default function CommunityScreen() {
         </View>
 
         {/* Navigation to Alerts */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.alertsButton, { backgroundColor: "#FF4444" }]}
           onPress={handleNavigateToAlerts}
         >
           <Ionicons name="warning" size={24} color="white" />
           <Text style={styles.alertsButtonText}>View Official Alerts</Text>
           <Ionicons name="arrow-forward" size={20} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Escalation Info */}
         <View
@@ -1647,7 +1652,7 @@ export default function CommunityScreen() {
               key={event.id}
               style={[
                 styles.eventCard,
-                { backgroundColor: isDark ? "#1c1e21" : "#ffffff" },
+                { backgroundColor: isDark ? "#1c1c1e" : "#ffffff"},
               ]}
             >
               {/* Event Image */}
@@ -1716,7 +1721,7 @@ export default function CommunityScreen() {
 
                 {/* View More Button */}
                 <TouchableOpacity
-                  style={styles.viewMoreButton}
+                  style={[styles.viewMoreButton]}
                   onPress={() => {
                     setSelectedEvent({
                       ...event,
@@ -1725,7 +1730,7 @@ export default function CommunityScreen() {
                     setShowEventModal(true);
                   }}
                 >
-                  <Text style={styles.viewMoreButtonText}>View more</Text>
+                  <Text style={[styles.viewMoreButtonText, { color: isDark ? "#000000" : "#ffffff" }]}>View more</Text>
                 </TouchableOpacity>
               </View>
             </View>
