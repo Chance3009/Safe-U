@@ -31,7 +31,7 @@ const getImageSource = (image: string) => {
   if (typeof image === "string") return imageMap[image as keyof typeof imageMap] || null;
   return null;
 };
-import safetyCategoriesData from "./SafetyCategory.json";
+import { categories as safetyCategoriesData } from "./SafetyCategory";
 
 interface CommentItem {
   id: string;
@@ -49,15 +49,15 @@ interface CommunityPost {
   downvotes: number;
   comments: number;
   timestamp: string;
-  category: "PSA" | "Safety" | "Facility" | "General" | "Escalated" | string;
+  category: "Safety Alerts" | "Facility Issues" | "PSA & Safety Tips" | "General" | string;
   escalationStatus:
     | "pending"
     | "escalated"
     | "rejected"
-    | "none"
+    | "none" // for categories that do not have escalation (PSA & Safety Tips, General)
     | "resolved"
     | string;
-  escalationThreshold: number;
+  // escalationThreshold: number;
   location?: string;
   coordinates?: {
     latitude: number;
@@ -920,7 +920,7 @@ export default function CommunityScreen() {
               )}
 
               {/* Escalation Progress */}
-              {post.escalationStatus === "pending" && (
+              {(post.category === "Safety Alerts" || post.category === "Facility Issues") && post.escalationStatus === "none" && (
                 <View style={styles.escalationProgress}>
                   <Text
                     style={[
@@ -929,7 +929,8 @@ export default function CommunityScreen() {
                     ]}
                   >
                     Escalation Progress: {post.upvotes}/
-                    {post.escalationThreshold} upvotes needed
+                    {/* {post.escalationThreshold} upvotes needed */}
+                    1000 upvotes needed
                   </Text>
                   <View style={styles.progressBar}>
                     <View
@@ -937,7 +938,8 @@ export default function CommunityScreen() {
                         styles.progressFill,
                         {
                           width: `${Math.min(
-                            (post.upvotes / post.escalationThreshold) * 100,
+                            // (post.upvotes / post.escalationThreshold) * 100,
+                            (post.upvotes / 1000) * 100,
                             100
                           )}%`,
                           backgroundColor: "#FF9500",
@@ -1066,8 +1068,9 @@ export default function CommunityScreen() {
                 )}
 
                 {/* Escalation Button */}
-                {post.escalationStatus === "pending" &&
-                  post.upvotes >= post.escalationThreshold && (
+                {(post.category === "Safety Alerts" || post.category === "Facility Issues") && post.escalationStatus === "none" &&
+                  // post.upvotes >= post.escalationThreshold && (
+                  post.upvotes >= 1000 && (
                     <TouchableOpacity
                       style={[
                         styles.escalationButton,
@@ -1859,13 +1862,13 @@ export default function CommunityScreen() {
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case "PSA":
+    case "Facility Issues":
       return "#FF9500";
-    case "Safety":
+    case "Safety Alerts":
       return "#FF4444";
-    case "Facility":
+    case "General":
       return "#007AFF";
-    case "Escalated":
+    case "PSA & Safety Tips":
       return "#34C759";
     default:
       return "#34C759";

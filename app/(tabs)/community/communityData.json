@@ -4,15 +4,14 @@
       "id": "1",
       "author": "Muhd bin A",
       "content":
-        "PSA: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
+        "Alert: There is a fallen tree in Jalan Universiti. Hope authorities can remove it as soon as possible.",
       "images": [],
       "upvotes": 12000,
       "downvotes": 0,
       "comments": 1000,
       "timestamp": "2025-09-01T00:08:35.534Z",
-      "category": "PSA",
-      "escalationStatus": "escalated",
-      "escalationThreshold": 10000,
+      "category": "Safety Alerts",
+      "escalationStatus": "resolved",
       "location": "Jalan Universiti, USM",
       "coordinates": { "latitude": 5.4164, "longitude": 100.3327 }
     },
@@ -25,9 +24,8 @@
       "downvotes": 12,
       "comments": 89,
       "timestamp": "2025-08-29T00:08:35.534Z",
-      "category": "Safety",
-      "escalationStatus": "pending",
-      "escalationThreshold": 500,
+      "category": "Safety Alerts",
+      "escalationStatus": "escalated",
       "location": "Library, USM"
     },
     {
@@ -39,9 +37,8 @@
       "downvotes": 5,
       "comments": 45,
       "timestamp": "2025-08-25T00:08:35.534Z",
-      "category": "Facility",
+      "category": "Facility Issues",
       "escalationStatus": "none",
-      "escalationThreshold": 1000,
       "location": "Engineering Building, USM"
     },
     {
@@ -53,9 +50,8 @@
       "downvotes": 2,
       "comments": 156,
       "timestamp": "2025-09-02T00:08:35.534Z",
-      "category": "Safety",
-      "escalationStatus": "pending",
-      "escalationThreshold": 500,
+      "category": "Safety Alerts",
+      "escalationStatus": "none",
       "location": "Science Building Parking, USM",
       "coordinates": { "latitude": 5.4164, "longitude": 100.3327 }
     },
@@ -69,9 +65,33 @@
       "comments": 23,
       "timestamp": "2025-08-01T00:08:35.534Z",
       "category": "General",
-      "escalationStatus": "resolved",
-      "escalationThreshold": 1000,
+      "escalationStatus": "none",
       "location": "Cafeteria, USM"
+    },
+    {
+      "id": "6",
+      "author": "Sarah Tan",
+      "content": "Always use the pedestrian crossing near the library for your safety. Avoid jaywalking, especially during peak traffic hours.",
+      "upvotes": 42,
+      "downvotes": 1,
+      "comments": 5,
+      "timestamp": "2025-08-12T14:25:10.123Z",
+      "category": "PSA & Safety Tips",
+      "escalationStatus": "none",
+      "location": "Library Entrance, USM"
+    },
+    {
+      "id": "7",
+      "author": "Aisha Karim",
+      "content": "The air conditioning in Lecture Hall B has stopped working, making the room very uncomfortable during classes.",
+      "upvotes": 1002,
+      "downvotes": 2,
+      "comments": 12,
+      "timestamp": "2025-09-05T10:42:15.321Z",
+      "category": "Facility Issues",
+      "escalationStatus": "none",
+      "location": "Lecture Hall B, USM"
     }
+    
   ]
 }

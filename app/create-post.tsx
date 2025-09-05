@@ -16,11 +16,10 @@ import EventBus from "../utils/eventBus";
 import * as ImagePicker from "expo-image-picker";
 
 const CATEGORIES = [
-  "PSA",
-  "Safety",
-  "Facility",
-  "General",
-  "Escalated",
+  "Safety Alerts",
+  "Facility Issues",
+  "PSA & Safety Tips",
+  "General"
 ] as const;
 
 interface LocationData {
