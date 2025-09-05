@@ -31,7 +31,7 @@ const getImageSource = (image: string) => {
   if (typeof image === "string") return imageMap[image as keyof typeof imageMap] || null;
   return null;
 };
-import safetyCategoriesData from "./SafetyCategory.json";
+import { categories as safetyCategoriesData } from "./SafetyCategory";
 
 interface CommentItem {
   id: string;
