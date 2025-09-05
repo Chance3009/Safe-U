@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 15,
-    backgroundColor: "#f0f0f0",
     borderRadius: 12,
   },
   switchContainer: {

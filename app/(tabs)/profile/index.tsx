@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "@/components/useColorScheme";
+import useDarkMode from "@/app/useDarkMode";
 
 import styles from "../../styles/profileStyles";
 // Import the data from the JSON file
@@ -27,21 +27,19 @@ export default function ProfileScreen() {
   const [locationSharing, setLocationSharing] = useState(true);
   const [dataConsent, setDataConsent] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [userName, setUserName] = useState("Alex Johnson");
   const [userEmail, setUserEmail] = useState("alex.johnson@university.edu");
   const [userPhone, setUserPhone] = useState("+1 555-0123");
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
+  
   const { emergencyContacts, appSettings } = profileData;
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
     <ScrollView
       style={[
         styles.container,
-        { backgroundColor: isDark ? "#000000" : "#ffffff" },
+        { backgroundColor: darkMode==="dark" ? "#000000" : "#ffffff" },
       ]}
     >
       {/* Profile Header */}
@@ -62,41 +60,41 @@ export default function ProfileScreen() {
                 style={[
                   styles.profileInput,
                   {
-                    backgroundColor: isDark ? "#333333" : "#f0f0f0",
-                    color: isDark ? "#ffffff" : "#000000",
+                    backgroundColor: darkMode==="dark" ? "#333333" : "#f0f0f0",
+                    color: darkMode==="dark" ? "#ffffff" : "#000000",
                   },
                 ]}
                 value={userName}
                 onChangeText={setUserName}
                 placeholder="Full Name"
-                placeholderTextColor={isDark ? "#999999" : "#666666"}
+                placeholderTextColor={darkMode==="dark" ? "#999999" : "#666666"}
               />
               <TextInput
                 style={[
                   styles.profileInput,
                   {
-                    backgroundColor: isDark ? "#333333" : "#f0f0f0",
-                    color: isDark ? "#ffffff" : "#000000",
+                    backgroundColor: darkMode==="dark" ? "#333333" : "#f0f0f0",
+                    color: darkMode==="dark" ? "#ffffff" : "#000000",
                   },
                 ]}
                 value={userEmail}
                 onChangeText={setUserEmail}
                 placeholder="Email"
-                placeholderTextColor={isDark ? "#999999" : "#666666"}
+                placeholderTextColor={darkMode==="dark" ? "#999999" : "#666666"}
                 keyboardType="email-address"
               />
               <TextInput
                 style={[
                   styles.profileInput,
                   {
-                    backgroundColor: isDark ? "#333333" : "#f0f0f0",
-                    color: isDark ? "#ffffff" : "#000000",
+                    backgroundColor: darkMode==="dark" ? "#333333" : "#f0f0f0",
+                    color: darkMode==="dark" ? "#ffffff" : "#000000",
                   },
                 ]}
                 value={userPhone}
                 onChangeText={setUserPhone}
                 placeholder="Phone"
-                placeholderTextColor={isDark ? "#999999" : "#666666"}
+                placeholderTextColor={darkMode==="dark" ? "#999999" : "#666666"}
                 keyboardType="phone-pad"
               />
             </View>
@@ -105,7 +103,7 @@ export default function ProfileScreen() {
               <Text
                 style={[
                   styles.userName,
-                  { color: isDark ? "#ffffff" : "#000000" },
+                  { color: darkMode==="dark" ? "#ffffff" : "#000000" },
                 ]}
               >
                 {userName}
@@ -113,7 +111,7 @@ export default function ProfileScreen() {
               <Text
                 style={[
                   styles.userEmail,
-                  { color: isDark ? "#999999" : "#666666" },
+                  { color: darkMode==="dark" ? "#999999" : "#666666" },
                 ]}
               >
                 {userEmail}
@@ -121,7 +119,7 @@ export default function ProfileScreen() {
               <Text
                 style={[
                   styles.userPhone,
-                  { color: isDark ? "#999999" : "#666666" },
+                  { color: darkMode==="dark" ? "#999999" : "#666666" },
                 ]}
               >
                 {userPhone}
@@ -155,21 +153,23 @@ export default function ProfileScreen() {
         <Text
           style={[
             styles.sectionTitle,
-            { color: isDark ? "#ffffff" : "#000000" },
+            { color: darkMode==="dark" ? "#ffffff" : "#000000" },
           ]}
         >
           Privacy & Security
         </Text>
 
         <View style={styles.settingsList}>
-          <View style={styles.settingItem}>
+          <View style={[styles.settingItem,
+            { backgroundColor: darkMode==="dark" ? "#000000" : "#f0f0f0" }
+          ]}>
             <View style={styles.settingInfo}>
               <Ionicons name="location" size={24} color="#34C759" />
               <View style={styles.settingText}>
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: darkMode==="dark" ?  "#ffffff" : "#000000" },
                   ]}
                 >
                   Location Sharing
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   Share location with emergency contacts
@@ -199,7 +199,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: darkMode==="dark" ?  "#ffffff" : "#000000" },
                   ]}
                 >
                   Data Consent
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   Allow data collection for safety features
@@ -230,7 +230,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: darkMode==="dark" ?  "#ffffff" : "#000000" },
                   ]}
                 >
                   Push Notifications
@@ -238,7 +238,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   Receive safety alerts and updates
@@ -260,7 +260,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingTitle,
-                    { color: isDark ? "#000000" : "#ffffff" },
+                    { color: darkMode==="dark" ?  "#ffffff" : "#000000" },
                   ]}
                 >
                   Dark Mode
@@ -268,7 +268,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.settingDescription,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   Use dark theme for better visibility
@@ -276,10 +276,10 @@ export default function ProfileScreen() {
               </View>
             </View>
             <Switch
-              value={darkModeEnabled}
-              onValueChange={setDarkModeEnabled}
+              value={darkMode === "dark"}
+              onValueChange={toggleDarkMode}
               trackColor={{ false: "#767577", true: "#AF52DE" }}
-              thumbColor={darkModeEnabled ? "#ffffff" : "#f4f3f4"}
+              thumbColor={darkMode === "dark" ? "#ffffff" : "#f4f3f4"}
             />
           </View>
         </View>
@@ -291,7 +291,7 @@ export default function ProfileScreen() {
           <Text
             style={[
               styles.sectionTitle,
-              { color: isDark ? "#ffffff" : "#000000" },
+              { color: darkMode==="dark" ? "#ffffff" : "#000000" },
             ]}
           >
             Emergency Contacts
@@ -310,7 +310,7 @@ export default function ProfileScreen() {
               key={contact.id}
               style={[
                 styles.contactItem,
-                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                { backgroundColor: darkMode==="dark" ? "#333333" : "#f0f0f0" },
               ]}
             >
               <View style={styles.contactInfo}>
@@ -318,7 +318,7 @@ export default function ProfileScreen() {
                   <Text
                     style={[
                       styles.contactName,
-                      { color: isDark ? "#ffffff" : "#000000" },
+                      { color: darkMode==="dark" ? "#ffffff" : "#000000" },
                     ]}
                   >
                     {contact.name}
@@ -338,7 +338,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.contactPhone,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   {contact.phone}
@@ -347,7 +347,7 @@ export default function ProfileScreen() {
                 <Text
                   style={[
                     styles.contactRelationship,
-                    { color: isDark ? "#999999" : "#666666" },
+                    { color: darkMode==="dark" ? "#999999" : "#666666" },
                   ]}
                 >
                   {contact.relationship}
@@ -395,7 +395,7 @@ export default function ProfileScreen() {
         <Text
           style={[
             styles.sectionTitle,
-            { color: isDark ? "#ffffff" : "#000000" },
+            { color: darkMode==="dark" ? "#ffffff" : "#000000" },
           ]}
         >
           App Settings
@@ -407,7 +407,7 @@ export default function ProfileScreen() {
               key={setting.id}
               style={[
                 styles.settingGridItem,
-                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                { backgroundColor: darkMode==="dark" ? "#333333" : "#f0f0f0" },
               ]}
               onPress={() => handleSettingPress(setting)}
             >
@@ -415,7 +415,7 @@ export default function ProfileScreen() {
               <Text
                 style={[
                   styles.settingGridTitle,
-                  { color: isDark ? "#ffffff" : "#000000" },
+                  { color: darkMode==="dark" ? "#ffffff" : "#000000" },
                 ]}
               >
                 {setting.title}
@@ -423,7 +423,7 @@ export default function ProfileScreen() {
               <Text
                 style={[
                   styles.settingGridDescription,
-                  { color: isDark ? "#999999" : "#666666" },
+                  { color: darkMode==="dark" ? "#999999" : "#666666" },
                 ]}
               >
                 {setting.description}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import useDarkMode from '../useDarkMode';
+import { useColorScheme } from 'react-native';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -11,8 +13,9 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const isDark = useColorScheme() === 'dark';
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#FF0000' }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#FF0000', tabBarStyle: { backgroundColor: isDark ? "#000000" : "#ffffff" } }}>
       {/* Changed from "index/index" to "index" to match actual file structure */}
       <Tabs.Screen
         name="index"
