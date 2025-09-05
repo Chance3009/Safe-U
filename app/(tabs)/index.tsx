@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ViewMap from "../ViewMap";
 import {
   View,
   Text,
@@ -312,35 +313,7 @@ export default function SOSScreen() {
 
         {/* Map View when SOS is active */}
         {isEmergencyActive && (
-          <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: userLocation.latitude,
-                longitude: userLocation.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-            >
-              {/* User location marker */}
-              <Marker
-                coordinate={userLocation}
-                title="Your Location"
-                description="SOS Active"
-                pinColor="#FF0000"
-              />
-
-              {/* Location history breadcrumbs */}
-              {locationHistory.length > 1 && (
-                <Polyline
-                  coordinates={locationHistory}
-                  strokeColor="#FF0000"
-                  strokeWidth={3}
-                  lineDashPattern={[5, 5]}
-                />
-              )}
-            </MapView>
-          </View>
+          <ViewMap mapHeight={1500} />
         )}
       </View>
 

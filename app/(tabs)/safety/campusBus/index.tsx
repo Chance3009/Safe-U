@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useRouter } from "expo-router";
+import ViewMap from "@/app/ViewMap";
 // Map functionality temporarily disabled for Expo Go compatibility
 // import MapView, { Marker } from 'react-native-maps';
 import busData from "./indexData.json";
@@ -68,43 +69,7 @@ export default function CampusBusScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Map Section - Expo Go Compatible */}
         <View style={styles.mapContainer}>
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapPlaceholderText}>🚌 Campus Bus Tracker</Text>
-            <Text style={styles.mapPlaceholderSubtext}>
-              Real-time bus tracking will be available in the full app version
-            </Text>
-            <View style={styles.busInfo}>
-              <Text style={styles.busInfoTitle}>Active Buses:</Text>
-              {buses
-                .filter((bus) => bus.status === "active")
-                .map((bus) => (
-                  <Text key={bus.id} style={styles.busInfoText}>
-                    • {bus.name}: {bus.status}
-                  </Text>
-                ))}
-            </View>
-          </View>
-
-          {/* Map Label */}
-          <View
-            style={[
-              styles.mapLabel,
-              {
-                backgroundColor: isDark
-                  ? "rgba(28, 28, 30, 0.9)"
-                  : "rgba(255, 255, 255, 0.9)",
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.mapLabelText,
-                { color: isDark ? "#ffffff" : "#000000" },
-              ]}
-            >
-              map
-            </Text>
-          </View>
+          <ViewMap mapHeight={200} />
         </View>
 
         {/* Stats Section */}

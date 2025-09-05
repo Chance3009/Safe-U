@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ViewMap from "@/app/ViewMap";
 import {
   View,
   Text,
@@ -92,10 +93,6 @@ export default function AlertsScreen() {
           >
             Official Alerts
           </Text>
-          <View style={styles.headerBadge}>
-            <Ionicons name="shield-checkmark" size={16} color="#34C759" />
-            <Text style={styles.headerBadgeText}>Admin Verified</Text>
-          </View>
         </View>
         <Text
           style={[styles.subtitle, { color: isDark ? "#999999" : "#666666" }]}
@@ -106,70 +103,7 @@ export default function AlertsScreen() {
 
       {/* Location Display */}
       <View style={styles.mapContainer}>
-        <View style={styles.map}>
-          <Text style={styles.mapTitle}>Alert Locations</Text>
-
-          {/* Campus Buildings */}
-          <View style={styles.locationItem}>
-            <View
-              style={[styles.locationDot, { backgroundColor: "#007AFF" }]}
-            />
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationTitle}>Science Building, USM</Text>
-              <Text style={styles.locationDescription}>
-                Main Science Complex
-              </Text>
-              <Text style={styles.locationCoordinates}>5.4164, 100.3327</Text>
-            </View>
-          </View>
-
-          <View style={styles.locationItem}>
-            <View
-              style={[styles.locationDot, { backgroundColor: "#007AFF" }]}
-            />
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationTitle}>Library, USM</Text>
-              <Text style={styles.locationDescription}>Central Library</Text>
-              <Text style={styles.locationCoordinates}>5.4174, 100.3337</Text>
-            </View>
-          </View>
-
-          <View style={styles.locationItem}>
-            <View
-              style={[styles.locationDot, { backgroundColor: "#007AFF" }]}
-            />
-            <View style={styles.locationInfo}>
-              <Text style={styles.locationTitle}>Main Bus Terminal</Text>
-              <Text style={styles.locationDescription}>
-                Campus Transportation Hub
-              </Text>
-              <Text style={styles.locationCoordinates}>5.4154, 100.3317</Text>
-            </View>
-          </View>
-
-          {/* Alert Locations */}
-          {adminAlerts.map((alert) => (
-            <View key={alert.id} style={styles.locationItem}>
-              <View
-                style={[
-                  styles.locationDot,
-                  { backgroundColor: getCategoryColor(alert.category) },
-                ]}
-              />
-              <View style={styles.locationInfo}>
-                <Text style={styles.locationTitle}>{alert.title}</Text>
-                <Text style={styles.locationDescription}>
-                  {alert.description}
-                </Text>
-                <Text style={styles.locationCoordinates}>
-                  {alert.coordinates.latitude.toFixed(4)},{" "}
-                  {alert.coordinates.longitude.toFixed(4)}
-                </Text>
-                <Text style={styles.locationAddress}>{alert.location}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+        <ViewMap mapHeight={200} />
 
         {/* Map Legend */}
         <View

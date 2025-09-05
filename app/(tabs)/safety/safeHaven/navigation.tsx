@@ -8,6 +8,8 @@ import {
   useColorScheme,
   ScrollView,
 } from "react-native";
+
+import ViewMap from "@/app/ViewMap";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 // Temporarily commenting out react-native-maps due to compatibility issues
@@ -82,14 +84,6 @@ export default function NavigationScreen() {
     }
   };
 
-  const handleOpenInMaps = () => {
-    if (selectedHaven) {
-      const { latitude, longitude } = selectedHaven.coordinates;
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-      Linking.openURL(url);
-    }
-  };
-
   const handleBackToSafeHaven = () => {
     router.back();
   };
@@ -157,40 +151,7 @@ export default function NavigationScreen() {
       </View>
 
       {/* Map Placeholder - Temporarily disabled due to compatibility issues */}
-      <View style={styles.mapContainer}>
-        <View
-          style={[
-            styles.map,
-            {
-              backgroundColor: isDark ? "#2c2c2e" : "#f0f0f0",
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <Ionicons
-            name="map"
-            size={48}
-            color={isDark ? "#666666" : "#999999"}
-          />
-          <Text
-            style={[
-              styles.mapPlaceholderText,
-              { color: isDark ? "#999999" : "#666666", marginTop: 16 },
-            ]}
-          >
-            Map temporarily unavailable
-          </Text>
-          <Text
-            style={[
-              styles.mapPlaceholderSubtext,
-              { color: isDark ? "#666666" : "#999999", marginTop: 8 },
-            ]}
-          >
-            Use "Open in Maps" button below for navigation
-          </Text>
-        </View>
-      </View>
+      <ViewMap />
 
       {/* Navigation Info */}
       <View
@@ -231,16 +192,6 @@ export default function NavigationScreen() {
           >
             <Ionicons name="call" size={20} color="white" />
             <Text style={styles.emergencyButtonText}>Emergency Call</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.emergencyButton,
-              { backgroundColor: "#4ECDC4", marginTop: 12 },
-            ]}
-            onPress={handleOpenInMaps}
-          >
-            <Ionicons name="navigate" size={20} color="white" />
-            <Text style={styles.emergencyButtonText}>Open in Maps</Text>
           </TouchableOpacity>
         </View>
 
