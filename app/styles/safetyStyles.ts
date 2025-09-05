@@ -214,17 +214,16 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   mapPreview: {
-    height: 200,
+    marginTop: 16,
     borderRadius: 12,
     overflow: "hidden",
+    backgroundColor: "#f0f0f0",
+    height: 200,
   },
   mapPreviewMap: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
-    padding: 16,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+    height: 200,
+    backgroundColor: "#f0f0f0",
   },
   mapPreviewText: {
     fontSize: 14,

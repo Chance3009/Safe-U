@@ -25,11 +25,12 @@ export default StyleSheet.create({
     padding: 16,
   },
   mapContainer: {
-    height: 200,
+    height: 250, // Increased from 200
     borderRadius: 16,
     overflow: "hidden",
-    marginBottom: 16,
+    marginBottom: 20, // Increased spacing
     position: "relative",
+    backgroundColor: "#f0f0f0", // Add fallback background
   },
   map: {
     flex: 1,
@@ -56,12 +57,11 @@ export default StyleSheet.create({
     lineHeight: 20,
   },
   busInfo: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    flex: 1,
+    backgroundColor: "transparent", // Remove fixed white background
+    padding: 0, // Remove extra padding since busItem already has padding
+    borderRadius: 0,
+    borderWidth: 0,
   },
   busInfoTitle: {
     fontSize: 16,
@@ -144,10 +144,6 @@ export default StyleSheet.create({
   },
   busIconText: {
     fontSize: 24,
-  },
-  busInfo: {
-    flex: 1,
-    marginRight: 12,
   },
   busHeader: {
     flexDirection: "row",
