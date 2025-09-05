@@ -27,8 +27,10 @@ const imageMap = {
 };
 
 const getImageSource = (image: string) => {
-  if (typeof image === "string" && image.startsWith("http")) return { uri: image };
-  if (typeof image === "string") return imageMap[image as keyof typeof imageMap] || null;
+  if (typeof image === "string" && image.startsWith("http"))
+    return { uri: image };
+  if (typeof image === "string")
+    return imageMap[image as keyof typeof imageMap] || null;
   return null;
 };
 import { categories as safetyCategoriesData } from "./SafetyCategory";
@@ -49,7 +51,12 @@ interface CommunityPost {
   downvotes: number;
   comments: number;
   timestamp: string;
-  category: "Safety Alerts" | "Facility Issues" | "PSA & Safety Tips" | "General" | string;
+  category:
+    | "Safety Alerts"
+    | "Facility Issues"
+    | "PSA & Safety Tips"
+    | "General"
+    | string;
   escalationStatus:
     | "pending"
     | "escalated"
@@ -295,7 +302,7 @@ export default function CommunityScreen() {
       },
       {
         text: "Report to Authorities",
-        onPress: () => router.push("/(tabs)/report"),
+        onPress: () => router.push("/report"),
       },
       {
         text: "Cancel",
@@ -920,35 +927,37 @@ export default function CommunityScreen() {
               )}
 
               {/* Escalation Progress */}
-              {(post.category === "Safety Alerts" || post.category === "Facility Issues") && post.escalationStatus === "none" && (
-                <View style={styles.escalationProgress}>
-                  <Text
-                    style={[
-                      styles.escalationProgressText,
-                      { color: isDark ? "#999999" : "#666666" },
-                    ]}
-                  >
-                    Escalation Progress: {post.upvotes}/
-                    {/* {post.escalationThreshold} upvotes needed */}
-                    1000 upvotes needed
-                  </Text>
-                  <View style={styles.progressBar}>
-                    <View
+              {(post.category === "Safety Alerts" ||
+                post.category === "Facility Issues") &&
+                post.escalationStatus === "none" && (
+                  <View style={styles.escalationProgress}>
+                    <Text
                       style={[
-                        styles.progressFill,
-                        {
-                          width: `${Math.min(
-                            // (post.upvotes / post.escalationThreshold) * 100,
-                            (post.upvotes / 1000) * 100,
-                            100
-                          )}%`,
-                          backgroundColor: "#FF9500",
-                        },
+                        styles.escalationProgressText,
+                        { color: isDark ? "#999999" : "#666666" },
                       ]}
-                    />
+                    >
+                      Escalation Progress: {post.upvotes}/
+                      {/* {post.escalationThreshold} upvotes needed */}
+                      1000 upvotes needed
+                    </Text>
+                    <View style={styles.progressBar}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            width: `${Math.min(
+                              // (post.upvotes / post.escalationThreshold) * 100,
+                              (post.upvotes / 1000) * 100,
+                              100
+                            )}%`,
+                            backgroundColor: "#FF9500",
+                          },
+                        ]}
+                      />
+                    </View>
                   </View>
-                </View>
-              )}
+                )}
 
               {/* Post Actions */}
               <View style={styles.postActions}>
@@ -1068,7 +1077,9 @@ export default function CommunityScreen() {
                 )}
 
                 {/* Escalation Button */}
-                {(post.category === "Safety Alerts" || post.category === "Facility Issues") && post.escalationStatus === "none" &&
+                {(post.category === "Safety Alerts" ||
+                  post.category === "Facility Issues") &&
+                  post.escalationStatus === "none" &&
                   // post.upvotes >= post.escalationThreshold && (
                   post.upvotes >= 1000 && (
                     <TouchableOpacity
@@ -1648,12 +1659,7 @@ export default function CommunityScreen() {
 
               {/* Event Content */}
               <View style={styles.eventContent}>
-                <Text
-                  style={[
-                    styles.eventTitle,
-                    { color: "#000000" },
-                  ]}
-                >
+                <Text style={[styles.eventTitle, { color: "#000000" }]}>
                   {event.title}
                 </Text>
 
@@ -1714,7 +1720,7 @@ export default function CommunityScreen() {
                   onPress={() => {
                     setSelectedEvent({
                       ...event,
-                      image: getImageSource(event.image)
+                      image: getImageSource(event.image),
                     });
                     setShowEventModal(true);
                   }}
@@ -1745,31 +1751,30 @@ export default function CommunityScreen() {
             >
               {selectedEvent && (
                 <>
-                <View style={styles.modalHeader}>
-                <Text
-                    style={[
-                      styles.modalTitle,
-                      { color: isDark ? "#ffffff" : "#000000" },
-                    ]}
-                  >
-                    Event Details
-                  </Text>
-                  {/* Close Button */}
-                  <TouchableOpacity
-                    style={styles.closeModalButton}
-                    onPress={() => {
-                      setShowEventModal(false);
-                      setSelectedEvent(null);
-                    }}
-                  >
-                    <Ionicons
-                      name="close"
-                      size={24}
-                      color={isDark ? "#ffffff" : "#000000"}
-                    />
-                  </TouchableOpacity>
-                </View>
-                  
+                  <View style={styles.modalHeader}>
+                    <Text
+                      style={[
+                        styles.modalTitle,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      Event Details
+                    </Text>
+                    {/* Close Button */}
+                    <TouchableOpacity
+                      style={styles.closeModalButton}
+                      onPress={() => {
+                        setShowEventModal(false);
+                        setSelectedEvent(null);
+                      }}
+                    >
+                      <Ionicons
+                        name="close"
+                        size={24}
+                        color={isDark ? "#ffffff" : "#000000"}
+                      />
+                    </TouchableOpacity>
+                  </View>
 
                   <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Event Image */}
@@ -1874,4 +1879,3 @@ const getCategoryColor = (category: string) => {
       return "#34C759";
   }
 };
-
