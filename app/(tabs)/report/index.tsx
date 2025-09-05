@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,16 @@ import {
   Switch,
   Image,
   Modal,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
+import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import reportData from "./reportData.json";
 import styles from "../../styles/reportStyles";
+import EventBus from "../../../utils/eventBus";
 
 interface ReportItem {
   id: string;
@@ -26,9 +30,29 @@ interface ReportItem {
   images: string[];
   videos: string[];
   isAnonymous: boolean;
+  location?: {
+    name: string;
+    address: string;
+    coordinates: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+}
+
+interface LocationData {
+  name: string;
+  address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  placeId?: string;
+  types?: string[];
 }
 
 export default function ReportScreen() {
+  const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [reportType, setReportType] = useState("security");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -39,6 +63,14 @@ export default function ReportScreen() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [showCustomCategoryInput, setShowCustomCategoryInput] = useState(false);
+
+  // Location states
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
+    null
+  );
+  const [showLocationInput, setShowLocationInput] = useState(false);
+  const [locationHighlight, setLocationHighlight] = useState(false);
+  const highlightAnimation = useState(new Animated.Value(0))[0];
 
   // Report viewing and editing states
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
@@ -56,6 +88,47 @@ export default function ReportScreen() {
   const isDark = colorScheme === "dark";
 
   const categories = reportData.categories;
+
+  // Listen for location data from map-picker
+  useEffect(() => {
+    const handleLocationPicked = (locationData: LocationData) => {
+      setSelectedLocation(locationData);
+      setShowLocationInput(true);
+      setLocationHighlight(false);
+    };
+
+    const unsubscribe = EventBus.addListener(
+      "locationPicked",
+      handleLocationPicked
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // Highlight animation for location buttons
+  useEffect(() => {
+    if (locationHighlight) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(highlightAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(highlightAnimation, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+    } else {
+      highlightAnimation.setValue(0);
+    }
+  }, [locationHighlight, highlightAnimation]);
 
   const [reportStatuses, setReportStatuses] = useState<ReportItem[]>(
     reportData.reportStatuses.map((item: any) => ({
@@ -93,6 +166,98 @@ export default function ReportScreen() {
         );
       }, 5000);
     }
+  };
+
+  const handleMyLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Please allow location access to get your current location."
+        );
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+
+      // Get reverse geocoding for better place name
+      try {
+        const reverseGeocodeResult = await Location.reverseGeocodeAsync(coords);
+        if (reverseGeocodeResult.length > 0) {
+          const address = reverseGeocodeResult[0];
+          const addressParts = [
+            address.street,
+            address.district,
+            address.city,
+            address.region,
+            address.country,
+          ].filter(Boolean);
+
+          const readableAddress = addressParts.join(", ");
+          let placeName = "Current Location";
+
+          if (address.name) {
+            placeName = address.name;
+          } else if (address.street) {
+            placeName = address.street;
+          } else if (address.district) {
+            placeName = address.district;
+          } else if (address.city) {
+            placeName = address.city;
+          }
+
+          const locationData: LocationData = {
+            name: placeName,
+            address: readableAddress,
+            coordinates: coords,
+            placeId: `current_${Date.now()}`,
+            types: ["point_of_interest"],
+          };
+
+          setSelectedLocation(locationData);
+          setShowLocationInput(true);
+          setLocationHighlight(false);
+        }
+      } catch (geocodeError) {
+        console.error("Reverse geocoding error:", geocodeError);
+        const locationData: LocationData = {
+          name: "Current Location",
+          address: `${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(
+            6
+          )}`,
+          coordinates: coords,
+          placeId: `current_${Date.now()}`,
+          types: ["point_of_interest"],
+        };
+
+        setSelectedLocation(locationData);
+        setShowLocationInput(true);
+        setLocationHighlight(false);
+      }
+    } catch (error) {
+      console.error("Error getting current location:", error);
+      Alert.alert(
+        "Location Error",
+        "Failed to get your current location. Please try again or use the map picker."
+      );
+    }
+  };
+
+  const handleMapPicker = () => {
+    router.push("/map-picker");
+  };
+
+  const clearLocation = () => {
+    setSelectedLocation(null);
+    setShowLocationInput(false);
   };
 
   const handleCategorySelection = (categoryId: string) => {
@@ -188,6 +353,15 @@ export default function ReportScreen() {
       return;
     }
 
+    if (!selectedLocation) {
+      Alert.alert(
+        "Location Required",
+        "Please select a location for your report using 'My Location' or '2.5D Map' button.",
+        [{ text: "OK", onPress: () => setLocationHighlight(true) }]
+      );
+      return;
+    }
+
     // Create new report
     const newReport: ReportItem = {
       id: (reportStatuses.length + 1).toString(),
@@ -199,6 +373,13 @@ export default function ReportScreen() {
       images: [...uploadedImages],
       videos: [...uploadedVideos],
       isAnonymous: isAnonymous,
+      location: selectedLocation
+        ? {
+            name: selectedLocation.name,
+            address: selectedLocation.address,
+            coordinates: selectedLocation.coordinates,
+          }
+        : undefined,
     };
 
     // Add to reports list
@@ -219,6 +400,9 @@ export default function ReportScreen() {
     setUploadedImages([]);
     setUploadedVideos([]);
     setIsAnonymous(false);
+    setSelectedLocation(null);
+    setShowLocationInput(false);
+    setLocationHighlight(false);
   };
 
   const viewReportDetails = (report: ReportItem) => {
@@ -565,6 +749,60 @@ export default function ReportScreen() {
           </View>
         )}
 
+        {/* Location Input - Only shown after location is selected */}
+        {showLocationInput && selectedLocation && (
+          <View style={styles.locationInputContainer}>
+            <Text
+              style={[
+                styles.formLabel,
+                { color: isDark ? "#ffffff" : "#000000" },
+              ]}
+            >
+              Report Location *
+            </Text>
+            <View
+              style={[
+                styles.locationInput,
+                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+              ]}
+            >
+              <View style={styles.locationInfo}>
+                <Text
+                  style={[
+                    styles.locationName,
+                    { color: isDark ? "#ffffff" : "#000000" },
+                  ]}
+                >
+                  {selectedLocation.name}
+                </Text>
+                <Text
+                  style={[
+                    styles.locationAddress,
+                    { color: isDark ? "#999999" : "#666666" },
+                  ]}
+                >
+                  {selectedLocation.address}
+                </Text>
+                <Text
+                  style={[
+                    styles.locationCoords,
+                    { color: isDark ? "#999999" : "#666666" },
+                  ]}
+                >
+                  {selectedLocation.coordinates.latitude.toFixed(6)},{" "}
+                  {selectedLocation.coordinates.longitude.toFixed(6)}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.clearLocationButton}
+                onPress={clearLocation}
+              >
+                <Ionicons name="close-circle" size={24} color="#FF3B30" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {/* Anonymous Toggle */}
         <View style={styles.anonymousToggle}>
           <Text
@@ -694,75 +932,143 @@ export default function ReportScreen() {
         </Text>
 
         <View style={styles.quickActionsGrid}>
-          <TouchableOpacity
-            style={[
-              styles.quickActionButton,
-              { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
-            ]}
-            onPress={pickImagesFromGallery}
-          >
-            <Ionicons name="camera" size={24} color="#007AFF" />
-            <Text
+          <View style={styles.quickActionButtonContainer}>
+            <TouchableOpacity
               style={[
-                styles.quickActionText,
-                { color: isDark ? "#ffffff" : "#000000" },
+                styles.quickActionButton,
+                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
               ]}
+              onPress={pickImagesFromGallery}
             >
-              Add Photo
-            </Text>
-          </TouchableOpacity>
+              <Ionicons name="camera" size={24} color="#007AFF" />
+              <Text
+                style={[
+                  styles.quickActionText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Add Photo
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={[
-              styles.quickActionButton,
-              { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
-            ]}
-            onPress={pickVideoFromGallery}
-          >
-            <Ionicons name="videocam" size={24} color="#FF9500" />
-            <Text
+          <View style={styles.quickActionButtonContainer}>
+            <TouchableOpacity
               style={[
-                styles.quickActionText,
-                { color: isDark ? "#ffffff" : "#000000" },
+                styles.quickActionButton,
+                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
               ]}
+              onPress={pickVideoFromGallery}
             >
-              Add Video
-            </Text>
-          </TouchableOpacity>
+              <Ionicons name="videocam" size={24} color="#FF9500" />
+              <Text
+                style={[
+                  styles.quickActionText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                Add Video
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
+          <Animated.View
             style={[
-              styles.quickActionButton,
-              { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+              styles.quickActionButtonContainer,
+              locationHighlight && {
+                transform: [
+                  {
+                    scale: highlightAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+                shadowColor: "#FFD700",
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: highlightAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 0.8],
+                }),
+                shadowRadius: 10,
+                elevation: highlightAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 10],
+                }),
+              },
             ]}
           >
-            <Ionicons name="location" size={24} color="#34C759" />
-            <Text
+            <TouchableOpacity
               style={[
-                styles.quickActionText,
-                { color: isDark ? "#ffffff" : "#000000" },
+                styles.quickActionButton,
+                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                locationHighlight && {
+                  borderColor: "#FFD700",
+                  borderWidth: 2,
+                },
               ]}
+              onPress={handleMyLocation}
             >
-              Pin Location
-            </Text>
-          </TouchableOpacity>
+              <Ionicons name="location" size={24} color="#34C759" />
+              <Text
+                style={[
+                  styles.quickActionText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                My Location
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity
+          <Animated.View
             style={[
-              styles.quickActionButton,
-              { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+              styles.quickActionButtonContainer,
+              locationHighlight && {
+                transform: [
+                  {
+                    scale: highlightAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 1.05],
+                    }),
+                  },
+                ],
+                shadowColor: "#FFD700",
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: highlightAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 0.8],
+                }),
+                shadowRadius: 10,
+                elevation: highlightAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 10],
+                }),
+              },
             ]}
           >
-            <Ionicons name="map" size={24} color="#AF52DE" />
-            <Text
+            <TouchableOpacity
               style={[
-                styles.quickActionText,
-                { color: isDark ? "#ffffff" : "#000000" },
+                styles.quickActionButton,
+                { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                locationHighlight && {
+                  borderColor: "#FFD700",
+                  borderWidth: 2,
+                },
               ]}
+              onPress={handleMapPicker}
             >
-              2.5D Map
-            </Text>
-          </TouchableOpacity>
+              <Ionicons name="map" size={24} color="#AF52DE" />
+              <Text
+                style={[
+                  styles.quickActionText,
+                  { color: isDark ? "#ffffff" : "#000000" },
+                ]}
+              >
+                2.5D Map
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </View>
 
@@ -986,7 +1292,7 @@ export default function ReportScreen() {
                 >
                   {selectedReport?.category}
                 </Text>
-                <View ></View>
+                <View></View>
                 <Text
                   style={[
                     styles.modalLabel,
@@ -1067,6 +1373,57 @@ export default function ReportScreen() {
                 >
                   {selectedReport?.isAnonymous ? "Yes" : "No"}
                 </Text>
+
+                {/* Location Information */}
+                {selectedReport?.location && (
+                  <>
+                    <Text
+                      style={[
+                        styles.modalLabel,
+                        { color: isDark ? "#ffffff" : "#000000" },
+                      ]}
+                    >
+                      Location
+                    </Text>
+                    <View
+                      style={[
+                        styles.modalLocationContainer,
+                        { backgroundColor: isDark ? "#333333" : "#f0f0f0" },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.modalLocationName,
+                          { color: isDark ? "#ffffff" : "#000000" },
+                        ]}
+                      >
+                        {selectedReport.location.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.modalLocationAddress,
+                          { color: isDark ? "#999999" : "#666666" },
+                        ]}
+                      >
+                        {selectedReport.location.address}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.modalLocationCoords,
+                          { color: isDark ? "#999999" : "#666666" },
+                        ]}
+                      >
+                        {selectedReport.location.coordinates.latitude.toFixed(
+                          6
+                        )}
+                        ,{" "}
+                        {selectedReport.location.coordinates.longitude.toFixed(
+                          6
+                        )}
+                      </Text>
+                    </View>
+                  </>
+                )}
 
                 {/* Images and Videos display */}
                 {selectedReport?.images && selectedReport.images.length > 0 && (
