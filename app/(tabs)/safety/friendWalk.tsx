@@ -284,7 +284,7 @@ export default function FriendWalkScreen() {
                   <Text
                     style={[
                       styles.locationValue,
-                      { color: isDark ? "#000000" : "#ffffff" },
+                      { color: "#000000" },
                     ]}
                   >
                     {toLocation.name}

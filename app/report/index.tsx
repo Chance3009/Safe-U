@@ -17,8 +17,8 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import reportData from "./reportData.json";
-import styles from "../../styles/reportStyles";
-import EventBus from "../../../utils/eventBus";
+import styles from "../styles/reportStyles";
+import EventBus from "../../utils/eventBus";
 
 interface ReportItem {
   id: string;
