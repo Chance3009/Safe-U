@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useRouter } from "expo-router";
 import ViewMapBus from "@/components/ViewMapBus"; // Changed import
-import busData from "./indexData.json";
+import busData from "./campusBusData.json";
 import styles from "../../../styles/campusBusStyles";
 
 export default function CampusBusScreen() {
@@ -16,17 +16,15 @@ export default function CampusBusScreen() {
   const { activeBuses, closestBusStop, buses, busStops } = busData;
 
   // Convert buses to include coordinates AND update status based on selection
-  const busesWithCoords = buses.map((bus, index) => ({
+  const busesWithCoords = buses.map((bus) => ({
     ...bus,
     // Override status based on selectedBusId
     status:
       bus.id === selectedBusId
         ? "selected"
         : bus.status === "active"
-        ? "active"
-        : "inactive",
-    latitude: busStops[index % busStops.length]?.latitude || 37.7749,
-    longitude: busStops[index % busStops.length]?.longitude || -122.4194,
+          ? "active"
+          : "inactive",
   }));
 
   const handleBusSelect = (busId: string) => {
@@ -79,22 +77,22 @@ export default function CampusBusScreen() {
         </TouchableOpacity>
       </View>
 
+      <View style={[styles.mapContainer, { marginBottom: 20 }]}>
+        <ViewMapBus
+          buses={busesWithCoords}
+          busStops={busStops}
+          selectedBusId={selectedBusId}
+          mapHeight={250}
+          darkMode={isDark}
+          style={{
+            flex: 1,
+            borderRadius: 16,
+            overflow: "hidden",
+          }}
+        />
+      </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Map Section - Make sure it's properly positioned */}
-        <View style={[styles.mapContainer, { marginBottom: 20 }]}>
-          <ViewMapBus
-            buses={busesWithCoords}
-            busStops={busStops}
-            selectedBusId={selectedBusId}
-            mapHeight={250}
-            darkMode={isDark}
-            style={{
-              flex: 1,
-              borderRadius: 16,
-              overflow: "hidden",
-            }}
-          />
-        </View>
 
         {/* Stats Section */}
         <View

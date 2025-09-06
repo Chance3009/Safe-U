@@ -34,7 +34,9 @@ export default function NavigationScreen() {
     latitude: 3.1385,
     longitude: 101.6865,
   });
-  const [routeCoordinates, setRouteCoordinates] = useState<any[]>([]);
+  const [routeCoordinates, setRouteCoordinates] = useState<any[]>([
+
+  ]);
   const [estimatedTime, setEstimatedTime] = useState<string>("");
   const [distance, setDistance] = useState<string>("");
 
@@ -151,7 +153,18 @@ export default function NavigationScreen() {
       </View>
 
       {/* Map Placeholder - Temporarily disabled due to compatibility issues */}
-      <ViewMap />
+      <View style={styles.mapPreview}>
+        <ViewMap
+          safePoints={safeHavenData.safehavens
+            .filter((haven) => typeof haven.latitude === "number" && typeof haven.longitude === "number")
+            .map((haven) => ({
+              latitude: haven.latitude as number,
+              longitude: haven.longitude as number,
+            }))}
+          style={styles.mapPreviewMap}
+          darkMode={isDark}
+        />
+      </View>
 
       {/* Navigation Info */}
       <View

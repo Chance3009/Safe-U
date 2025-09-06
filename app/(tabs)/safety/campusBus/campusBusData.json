@@ -12,7 +12,9 @@
       "location": "Near School of Management",
       "eta": "3 min",
       "status": "active",
-      "route": "Campus Loop A"
+      "route": "Campus Loop A",
+      "latitude": 5.355115968416111,
+      "longitude": 100.30618960515122
     },
     {
       "id": "bus2",
@@ -21,36 +23,40 @@
       "location": "Near Faculty of Computer Sci",
       "eta": "7 min",
       "status": "active",
-      "route": "Campus Loop B"
+      "route": "Campus Loop B",
+      "latitude": 5.354434220979837,
+      "longitude": 100.30151093587337
     },
     {
       "id": "bus3",
       "name": "Bus 3",
       "code": "ABC 4234",
-      "location": "Near Faculty of Science",
+      "location": "Near School of Physics",
       "eta": "12 min",
       "status": "selected",
-      "route": "Campus Loop C"
+      "route": "Campus Loop C",
+      "latitude": 5.358761759090094,
+      "longitude": 100.30236865841295
     }
   ],
   "busStops": [
     {
       "id": "stop1",
       "name": "Stop 1 - Main Gate",
-      "latitude": 37.7749,
-      "longitude": -122.4194
+      "latitude": 5.358761759090094,
+      "longitude": 100.30236865841295
     },
     {
       "id": "stop13",
-      "name": "Stop 13 - Library",
-      "latitude": 37.7849,
-      "longitude": -122.4094
+      "name": "Stop 13 - Stor Kimia",
+      "latitude": 5.356232316213758,
+      "longitude": 100.30053715457613
     },
     {
       "id": "stop7",
       "name": "Stop 7 - Student Center",
-      "latitude": 37.7649,
-      "longitude": -122.4294
+      "latitude": 5.358031934654514,
+      "longitude": 100.30410837403916
     }
   ]
 }
