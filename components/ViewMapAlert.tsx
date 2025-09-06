@@ -112,6 +112,7 @@ export default function ViewMapAlert({
     const alertsData = JSON.stringify(alerts);
     const centerLat = alerts.length > 0 ? alerts[0].coordinates.latitude : currentLocation.latitude;
     const centerLng = alerts.length > 0 ? alerts[0].coordinates.longitude : currentLocation.longitude;
+    const selId = selectedAlertId || "";
 
     return `
       <!DOCTYPE html>
@@ -122,31 +123,10 @@ export default function ViewMapAlert({
         <style>
           body, html { margin: 0; padding: 0; height: 100%; }
           #map { height: 100%; width: 100%; }
-          .alert-marker {
-            border-radius: 50%;
-            text-align: center;
-            font-size: 18px;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-          }
-          .alert-selected { 
-            border-color: #000000;
-            border-width: 4px;
-            transform: scale(1.2);
-          }
-          .pulsing {
-            animation: pulse 2s infinite;
-          }
-          @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
-          }
+          .alert-marker { border-radius: 50%; text-align: center; font-size: 18px; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+          .alert-selected { border-color: #000000; border-width: 4px; transform: scale(1.2); }
+          .pulsing { animation: pulse 2s infinite; }
+          @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); } }
         </style>
       </head>
       <body>
@@ -154,15 +134,11 @@ export default function ViewMapAlert({
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
           let map = L.map('map').setView([${centerLat}, ${centerLng}], 16);
-
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-          }).addTo(map);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
           const alerts = ${alertsData};
-          const selectedAlertId = "${selectedAlertId || ''}";
+          const selectedAlertId = "${selId}";
 
-          // Function to get category color
           function getCategoryColor(category) {
             switch (category) {
               case "emergency": return "#FF4444";
@@ -172,8 +148,6 @@ export default function ViewMapAlert({
               default: return "#34C759";
             }
           }
-
-          // Function to get category icon
           function getCategoryIcon(category) {
             switch (category) {
               case "emergency": return "⚠️";
@@ -183,8 +157,6 @@ export default function ViewMapAlert({
               default: return "ℹ️";
             }
           }
-
-          // Function to get severity opacity
           function getSeverityOpacity(severity) {
             switch (severity) {
               case "critical": return 1.0;
@@ -195,7 +167,9 @@ export default function ViewMapAlert({
             }
           }
 
-          // Add alert markers
+          // store markers by id so we can open popup / center when selected
+          const markerMap = {};
+
           alerts.forEach(alert => {
             const categoryColor = getCategoryColor(alert.category);
             const categoryIcon = getCategoryIcon(alert.category);
@@ -203,7 +177,6 @@ export default function ViewMapAlert({
             const isSelected = alert.id === selectedAlertId;
             const isCritical = alert.severity === 'critical';
 
-            // Create alert area circle if radius is provided
             if (alert.radius) {
               L.circle([alert.coordinates.latitude, alert.coordinates.longitude], {
                 color: categoryColor,
@@ -214,19 +187,18 @@ export default function ViewMapAlert({
               }).addTo(map);
             }
 
-            // Create alert marker
             const alertIcon = L.divIcon({
               className: \`alert-marker \${isSelected ? 'alert-selected' : ''} \${isCritical ? 'pulsing' : ''}\`,
               html: \`<div style="
-                width: \${isSelected ? 50 : 40}px; 
-                height: \${isSelected ? 50 : 40}px; 
-                background-color: \${categoryColor}; 
-                border: \${isSelected ? '4px' : '3px'} solid white; 
-                border-radius: 50%; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                font-size: \${isSelected ? '22px' : '18px'}; 
+                width: \${isSelected ? 50 : 40}px;
+                height: \${isSelected ? 50 : 40}px;
+                background-color: \${categoryColor};
+                border: \${isSelected ? '4px' : '3px'} solid white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: \${isSelected ? '22px' : '18px'};
                 box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                 opacity: \${opacity};
               ">\${categoryIcon}</div>\`,
@@ -235,7 +207,7 @@ export default function ViewMapAlert({
               popupAnchor: [0, isSelected ? -25 : -20]
             });
 
-            L.marker([alert.coordinates.latitude, alert.coordinates.longitude], { icon: alertIcon })
+            const m = L.marker([alert.coordinates.latitude, alert.coordinates.longitude], { icon: alertIcon })
               .addTo(map)
               .bindPopup(\`
                 <div style="text-align: center; min-width: 250px; padding: 8px;">
@@ -243,23 +215,10 @@ export default function ViewMapAlert({
                     <span style="font-size: 24px;">\${categoryIcon}</span>
                     <strong style="display: block; margin-top: 4px; font-size: 16px;">\${alert.title}</strong>
                   </div>
-                  
                   <div style="margin-bottom: 12px;">
-                    <span style="
-                      background-color: \${categoryColor}; 
-                      color: white; 
-                      padding: 4px 8px; 
-                      border-radius: 12px; 
-                      font-size: 10px; 
-                      font-weight: bold;
-                      text-transform: uppercase;
-                    ">\${alert.severity}</span>
+                    <span style="background-color: \${categoryColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; text-transform: uppercase;">\${alert.severity}</span>
                   </div>
-                  
-                  <div style="text-align: left; margin-bottom: 12px;">
-                    <p style="margin: 4px 0; font-size: 14px;">\${alert.description}</p>
-                  </div>
-                  
+                  <div style="text-align: left; margin-bottom: 12px;"><p style="margin: 4px 0; font-size: 14px;">\${alert.description}</p></div>
                   <div style="text-align: left; font-size: 12px; color: #666;">
                     <div style="margin: 2px 0;"><strong>📍 Location:</strong> \${alert.location}</div>
                     <div style="margin: 2px 0;"><strong>🕒 Time:</strong> \${alert.timestamp}</div>
@@ -269,37 +228,33 @@ export default function ViewMapAlert({
                   </div>
                 </div>
               \`);
+            markerMap[alert.id] = m;
           });
 
-          // Fit map to show all alerts
-          if (alerts.length > 0) {
-            const allPoints = alerts.map(alert => [alert.coordinates.latitude, alert.coordinates.longitude]);
-            
-            if (allPoints.length === 1) {
-              // If only one alert, center on it with high zoom
-              map.setView([allPoints[0][0], allPoints[0][1]], 17);
-            } else if (allPoints.length > 1) {
-              // If multiple alerts, fit bounds but with less padding
-              const group = new L.featureGroup(allPoints.map(point => L.marker(point)));
-              map.fitBounds(group.getBounds().pad(0.05));
-              
-              // Ensure minimum zoom level
-              if (map.getZoom() < 15) {
-                map.setZoom(15);
+          // If a specific alert is selected, center on it and open popup
+          if (selectedAlertId && markerMap[selectedAlertId]) {
+            const selMarker = markerMap[selectedAlertId];
+            const latlng = selMarker.getLatLng();
+            map.setView(latlng, 17);
+            selMarker.openPopup();
+          } else {
+            // Fit map to show all alerts if no selection
+            if (alerts.length > 0) {
+              const allPoints = alerts.map(alert => [alert.coordinates.latitude, alert.coordinates.longitude]);
+              if (allPoints.length === 1) {
+                map.setView([allPoints[0][0], allPoints[0][1]], 17);
+              } else if (allPoints.length > 1) {
+                const group = new L.featureGroup(allPoints.map(point => L.marker(point)));
+                map.fitBounds(group.getBounds().pad(0.05));
+                if (map.getZoom() < 15) { map.setZoom(15); }
               }
             }
           }
 
           // Handle map clicks to send location data back to React Native
           map.on('click', function(e) {
-            const data = {
-              type: 'locationSelected',
-              latitude: e.latlng.lat,
-              longitude: e.latlng.lng
-            };
-            if (window.ReactNativeWebView) {
-              window.ReactNativeWebView.postMessage(JSON.stringify(data));
-            }
+            const data = { type: 'locationSelected', latitude: e.latlng.lat, longitude: e.latlng.lng };
+            if (window.ReactNativeWebView) { window.ReactNativeWebView.postMessage(JSON.stringify(data)); }
           });
         </script>
       </body>
