@@ -14,18 +14,6 @@
     },
     {
       "id": 2,
-      "name": "Main Mosque",
-      "type": "Religious",
-      "description": "University mosque with regular congregation and security presence",
-      "distance": "0.5 km",
-      "estimatedTime": "6 min walk",
-      "coordinates": { "latitude": 3.1395, "longitude": 101.6875 },
-      "phone": "+60-3-1234-5679",
-      "features": ["24/7 Access", "Security Guards", "Well-lit Area"],
-      "isOpen": true
-    },
-    {
-      "id": 3,
       "name": "Student Dormitory A",
       "type": "Residential",
       "description": "Main student housing with security desk and resident assistants",
@@ -37,7 +25,7 @@
       "isOpen": true
     },
     {
-      "id": 4,
+      "id": 3,
       "name": "Campus Police Station",
       "type": "Law Enforcement",
       "description": "Dedicated campus police unit with emergency response vehicles",
@@ -49,7 +37,7 @@
       "isOpen": true
     },
     {
-      "id": 5,
+      "id": 4,
       "name": "Library Security Desk",
       "type": "Academic",
       "description": "24/7 library with security personnel and emergency exits",
