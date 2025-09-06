@@ -1663,8 +1663,8 @@ export default function CommunityScreen() {
               />
 
               {/* Event Content */}
-              <View style={styles.eventContent}>
-                <Text style={[styles.eventTitle, { color: "#000000" }]}>
+              <View style={[styles.eventContent, { backgroundColor: isDark ? "#1c1e21" : "#ffffff" }]}>
+                <Text style={[styles.eventTitle, { color: isDark ? "#ffffff" : "#000000" }]}>
                   {event.title}
                 </Text>
 
@@ -1730,7 +1730,7 @@ export default function CommunityScreen() {
                     setShowEventModal(true);
                   }}
                 >
-                  <Text style={[styles.viewMoreButtonText, { color: isDark ? "#000000" : "#ffffff" }]}>View more</Text>
+                  <Text style={[styles.viewMoreButtonText, { color: isDark ? "#ffffff" : "#000000" }]}>View more</Text>
                 </TouchableOpacity>
               </View>
             </View>

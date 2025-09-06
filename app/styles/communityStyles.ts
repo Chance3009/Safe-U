@@ -695,8 +695,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   eventContent: {
-    padding: 16,
-    backgroundColor: "#E0FFE0",
+    padding: 16
   },
   eventTitle: {
     fontSize: 18,
