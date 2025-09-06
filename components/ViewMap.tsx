@@ -30,13 +30,13 @@ export default function ViewMap({
 }: ViewMapProps) {
   // Provide fallback/defaults for all props
   const defaultFrom = fromLocation || {
-    latitude: 37.78825,
-    longitude: -122.4324,
+    latitude: 5.3552777,
+    longitude:  100.299861,
     name: "Start",
   };
   const defaultTo = toLocation || {
-    latitude: 37.78925,
-    longitude: -122.4334,
+    latitude: 5.355278,
+    longitude: 100.297472,
     name: "End",
   };
   const defaultRoute = routeCoordinates || [defaultFrom, defaultTo];

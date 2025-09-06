@@ -49,6 +49,18 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  mapPreview: {
+    marginTop: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#f0f0f0",
+    height: 200,
+  },
+  mapPreviewMap: {
+    flex: 1,
+    height: 200,
+    backgroundColor: "#f0f0f0",
+  },
   navigationInfo: {
     padding: 20,
     borderTopLeftRadius: 20,

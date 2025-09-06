@@ -169,6 +169,7 @@ export default StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
+    marginRight: 24,
     fontWeight: "500",
   },
   routeText: {

@@ -10,7 +10,9 @@
       "coordinates": { "latitude": 3.1390, "longitude": 101.6869 },
       "phone": "+60-3-1234-5678",
       "features": ["Emergency Response", "CCTV Monitoring", "First Aid"],
-      "isOpen": true
+      "isOpen": true,
+      "laltitude": 5.358761759090094,
+      "longitude": 100.30236865841295
     },
     {
       "id": 2,
@@ -22,7 +24,9 @@
       "coordinates": { "latitude": 3.1400, "longitude": 101.6880 },
       "phone": "+60-3-1234-5680",
       "features": ["Security Desk", "Resident Assistants", "Emergency Contacts"],
-      "isOpen": true
+      "isOpen": true,
+      "latitude": 5.354948851441659,
+      "longitude": 100.30002413423557
     },
     {
       "id": 3,
@@ -34,7 +38,9 @@
       "coordinates": { "latitude": 3.1405, "longitude": 101.6885 },
       "phone": "+60-3-1234-5681",
       "features": ["Emergency Response", "Vehicle Patrol", "Criminal Reporting"],
-      "isOpen": true
+      "isOpen": true,
+      "latitude": 5.356500,
+      "longitude": 100.303000
     },
     {
       "id": 4,
@@ -46,7 +52,9 @@
       "coordinates": { "latitude": 3.1392, "longitude": 101.6872 },
       "phone": "+60-3-1234-5682",
       "features": ["24/7 Access", "Security Personnel", "Emergency Exits"],
-      "isOpen": true
+      "isOpen": true,
+      "latitude": 5.358099098730104,
+      "longitude": 100.30330381770322
     }
   ],
   "emergencyContacts":[

@@ -49,18 +49,23 @@ export default function ViewMapBus({
 
   // Get user's current location
   const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const location = await Location.getCurrentPositionAsync({});
-        setCurrentLocation({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
-      }
-    } catch (error) {
-      console.error("Error getting location:", error);
-    }
+    // Uncomment below to enable real location fetching
+    // try {
+    //   const { status } = await Location.requestForegroundPermissionsAsync();
+    //   if (status === "granted") {
+    //     const location = await Location.getCurrentPositionAsync({});
+    //     setCurrentLocation({
+    //       latitude: location.coords.latitude,
+    //       longitude: location.coords.longitude,
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error("Error getting location:", error);
+    // }
+    setCurrentLocation({
+      latitude: 5.3552777,
+      longitude: 100.299861,
+    });
   };
 
   useEffect(() => {
