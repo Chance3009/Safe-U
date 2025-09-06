@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import styles from '../styles/sosPageStyles';
 import indexData from './indexData.json';
+import { router } from "expo-router";
 
 interface EmergencyContact {
   id: string;
@@ -305,31 +306,44 @@ export default function SOSScreen() {
           </TouchableOpacity>
 
           {!isEmergencyActive && (
-            <TouchableOpacity
-              style={styles.callSecurityButton}
-              onPress={() => {
-                Alert.alert(
-                  "Call Campus Security",
-                  "Do you want to call campus security?",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Call",
-                      onPress: () => {
-                        const phoneNumber = "+1-555-123-4567"; // Replace with actual campus security number
-                        Linking.openURL(`tel:${phoneNumber}`);
+            <View>
+              <TouchableOpacity
+                style={styles.otherActionsButton}
+                onPress={() => {
+                  Alert.alert(
+                    "Call Campus Security",
+                    "Do you want to call campus security?",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
                       },
-                    },
-                  ]
-                );
-              }}
-            >
-              <Ionicons name="call" size={24} color="white" />
-              <Text style={styles.callSecurityText}>Call Campus Security</Text>
-            </TouchableOpacity>
+                      {
+                        text: "Call",
+                        onPress: () => {
+                          const phoneNumber = "+1-555-123-4567"; // Replace with actual campus security number
+                          Linking.openURL(`tel:${phoneNumber}`);
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                <Ionicons name="call" size={24} color="white" />
+                <Text style={styles.otherActionsText}>Call Campus Security</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.otherActionsButton}
+                onPress={()=>{
+                  router.push('/report');
+                }}
+              >
+                <Ionicons name="document-text" size={24} color="white" />
+                <Text style={styles.otherActionsText}>
+                  Submit a report
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
 

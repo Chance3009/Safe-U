@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     opacity: 0.9,
   },
-  callSecurityButton: {
+  otherActionsButton: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#007AFF",
@@ -78,8 +78,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     gap: 12,
+    marginBottom: 15,
   },
-  callSecurityText: {
+  otherActionsText: {
     color: "white",
     fontSize: 16,
     fontWeight: "600",
