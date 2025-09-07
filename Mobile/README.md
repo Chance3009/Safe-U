@@ -289,9 +289,6 @@ Comprehensive reporting system for safety concerns:
 - Follow the established design patterns
 - Test thoroughly before submitting
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
@@ -299,15 +296,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **React Native Community** for the robust mobile framework
 - **Campus Safety Experts** for domain knowledge and feedback
 - **Open Source Contributors** for the libraries and tools used
-
-## 📞 Support
-
-For support, questions, or feature requests:
-
-- **Email**: support@safeu.app
-- **Documentation**: [docs.safeu.app](https://docs.safeu.app)
-- **Issues**: [GitHub Issues](https://github.com/safeu/app/issues)
-- **Discord**: [SafeU Community](https://discord.gg/safeu)
 
 ---
 
